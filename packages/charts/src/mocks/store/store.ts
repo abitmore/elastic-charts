@@ -13,7 +13,7 @@ import { DEFAULT_SETTINGS_SPEC, SettingsSpec, Spec, SpecType } from '../../specs
 import { updateParentDimensions } from '../../state/actions/chart_settings';
 import { upsertSpec, specParsed } from '../../state/actions/specs';
 import { chartStoreReducer, GlobalChartState } from '../../state/chart_state';
-import { getSettingsSpecSelector } from '../../state/selectors/get_settings_specs';
+import { getSettingsSpecSelector } from '../../state/selectors/get_settings_spec';
 import { mergePartial } from '../../utils/common';
 
 /** @internal */
@@ -45,8 +45,8 @@ export class MockStore {
   }
 
   static updateDimensions(
-    { width, height, top, left } = { width: 100, height: 100, top: 0, left: 0 },
     store: Store<GlobalChartState>,
+    { width, height, top, left } = { width: 100, height: 100, top: 0, left: 0 },
   ) {
     store.dispatch(updateParentDimensions({ width, height, top, left }));
   }
@@ -75,6 +75,6 @@ export class MockStore {
     const settings = getSettingsSpecSelector(store.getState());
 
     // debounce mocked as lodash.debounce to enable flush
-    if (settings.onPointerUpdate) ((settings.onPointerUpdate as unknown) as Cancelable).flush();
+    if (settings.onPointerUpdate) (settings.onPointerUpdate as unknown as Cancelable).flush();
   }
 }

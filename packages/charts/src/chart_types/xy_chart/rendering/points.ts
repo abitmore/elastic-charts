@@ -7,13 +7,19 @@
  */
 
 import { Color } from '../../../common/colors';
-import { Scale } from '../../../scales';
-import { isNil } from '../../../utils/common';
+import { ScaleBand, ScaleContinuous } from '../../../scales';
+import { isFiniteNumber, isNil } from '../../../utils/common';
 import { Dimensions } from '../../../utils/dimensions';
 import { BandedAccessorType, PointGeometry } from '../../../utils/geometry';
 import { PointStyle } from '../../../utils/themes/theme';
 import { GeometryType, IndexedGeometryMap } from '../utils/indexed_geometry_map';
-import { DataSeries, DataSeriesDatum, FilledValues, XYChartSeriesIdentifier } from '../utils/series';
+import {
+  DataSeries,
+  DataSeriesDatum,
+  FilledValues,
+  getSeriesIdentifierFromDataSeries,
+  XYChartSeriesIdentifier,
+} from '../utils/series';
 import { PointStyleAccessor, StackMode } from '../utils/specs';
 import { buildPointGeometryStyles } from './point_style';
 import {
@@ -30,8 +36,8 @@ import {
 export function renderPoints(
   shift: number,
   dataSeries: DataSeries,
-  xScale: Scale<number | string>,
-  yScale: Scale<number>,
+  xScale: ScaleBand | ScaleContinuous,
+  yScale: ScaleContinuous,
   panel: Dimensions,
   color: Color,
   pointStyle: PointStyle,
@@ -72,15 +78,7 @@ export function renderPoints(
       const valueAccessor = getYDatumValueFn(yDatumKeyName);
       const y = yDatumKeyName === 'y1' ? y1Fn(datum) : y0Fn(datum);
       const originalY = getDatumYValue(datum, keyIndex === 0, isBandChart, dataSeries.stackMode);
-      const seriesIdentifier: XYChartSeriesIdentifier = {
-        key: dataSeries.key,
-        specId: dataSeries.specId,
-        yAccessor: dataSeries.yAccessor,
-        splitAccessors: dataSeries.splitAccessors,
-        seriesKeys: dataSeries.seriesKeys,
-        smVerticalAccessorValue: dataSeries.smVerticalAccessorValue,
-        smHorizontalAccessorValue: dataSeries.smHorizontalAccessorValue,
-      };
+      const seriesIdentifier: XYChartSeriesIdentifier = getSeriesIdentifierFromDataSeries(dataSeries);
       const styleOverrides = getPointStyleOverrides(datum, seriesIdentifier, styleAccessor);
       const style = buildPointGeometryStyles(color, pointStyle, styleOverrides);
       const orphan = isOrphanDataPoint(dataIndex, dataSeries.data.length, yDefined, prev, next);
@@ -109,10 +107,14 @@ export function renderPoints(
         panel,
         orphan,
       };
-      const isInYDomain = yScale.isValueInDomain(valueAccessor(datum));
       indexedGeometryMap.set(pointGeometry, geometryType);
       // use the geometry only if the yDatum in contained in the current yScale domain
-      if (y !== null && yDefined(datum, valueAccessor) && isInYDomain && !isDatumFilled(datum)) {
+      if (
+        isFiniteNumber(y) &&
+        yDefined(datum, valueAccessor) &&
+        yScale.isValueInDomain(valueAccessor(datum)) &&
+        !isDatumFilled(datum)
+      ) {
         points.push(pointGeometry);
       }
     });

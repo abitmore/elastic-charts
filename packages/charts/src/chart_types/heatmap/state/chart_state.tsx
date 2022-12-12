@@ -10,12 +10,13 @@ import React, { RefObject } from 'react';
 
 import { ChartType } from '../..';
 import { BrushTool } from '../../../components/brush/brush';
-import { Tooltip } from '../../../components/tooltip';
+import { Tooltip } from '../../../components/tooltip/tooltip';
 import { InternalChartState, GlobalChartState, BackwardRef } from '../../../state/chart_state';
 import { getChartContainerDimensionsSelector } from '../../../state/selectors/get_chart_container_dimensions';
 import { InitStatus } from '../../../state/selectors/get_internal_is_intialized';
 import { Dimensions } from '../../../utils/dimensions';
 import { Heatmap } from '../renderer/canvas/connected_component';
+import { CursorBand } from '../renderer/dom/cursor_band';
 import { HighlighterFromBrush } from '../renderer/dom/highlighter_brush';
 import { computeChartElementSizesSelector } from './selectors/compute_chart_dimensions';
 import { computeLegendSelector } from './selectors/compute_legend';
@@ -33,6 +34,7 @@ import { createOnBrushEndCaller } from './selectors/on_brush_end_caller';
 import { createOnElementClickCaller } from './selectors/on_element_click_caller';
 import { createOnElementOutCaller } from './selectors/on_element_out_caller';
 import { createOnElementOverCaller } from './selectors/on_element_over_caller';
+import { createOnPointerUpdateCaller } from './selectors/on_pointer_update_caller';
 import { getTooltipInfoSelector } from './selectors/tooltip';
 
 const EMPTY_MAP = new Map();
@@ -48,6 +50,8 @@ export class HeatmapState implements InternalChartState {
   onElementOutCaller: (state: GlobalChartState) => void = createOnElementOutCaller();
 
   onBrushEndCaller: (state: GlobalChartState) => void = createOnBrushEndCaller();
+
+  onPointerUpdate: (state: GlobalChartState) => void = createOnPointerUpdateCaller();
 
   isInitialized(globalState: GlobalChartState) {
     return getSpecOrNull(globalState) !== null ? InitStatus.Initialized : InitStatus.ChartNotInitialized;
@@ -82,6 +86,7 @@ export class HeatmapState implements InternalChartState {
       <>
         <Tooltip getChartContainerRef={containerRef} />
         <Heatmap forwardStageRef={forwardStageRef} />
+        <CursorBand />
         <BrushTool />
         <HighlighterFromBrush />
       </>
@@ -93,7 +98,7 @@ export class HeatmapState implements InternalChartState {
   }
 
   isTooltipVisible(globalState: GlobalChartState) {
-    return { visible: isTooltipVisibleSelector(globalState), isExternal: false };
+    return isTooltipVisibleSelector(globalState);
   }
 
   getTooltipInfo(globalState: GlobalChartState) {
@@ -129,5 +134,6 @@ export class HeatmapState implements InternalChartState {
     this.onElementOutCaller(globalState);
     this.onElementClickCaller(globalState);
     this.onBrushEndCaller(globalState);
+    this.onPointerUpdate(globalState);
   }
 }

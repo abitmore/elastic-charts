@@ -6,10 +6,8 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'airbnb/hooks',
-    'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
     'plugin:eslint-comments/recommended',
-    'plugin:jest/recommended',
     'plugin:promise/recommended',
     'plugin:unicorn/recommended',
     'plugin:react/recommended',
@@ -49,14 +47,14 @@ module.exports = {
      * Rules that ensure sufficient freedom of expressing intent
      **************************************************************
      */
-    'no-else-return': 'off',
+    'no-else-return': 0,
     'no-param-reassign': [1, { props: false }],
     '@typescript-eslint/comma-spacing': 0,
     'unicorn/no-nested-ternary': 0,
     '@typescript-eslint/lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
-    'no-extra-parens': 'off', // it was already off by default; this line addition is just for documentation purposes
+    'no-extra-parens': 0, // it was already off by default; this line addition is just for documentation purposes
     '@typescript-eslint/restrict-template-expressions': 0, // it's OK to use numbers etc. in string templates
-    'unicorn/prefer-string-slice': 'off', // substr is just as fine as it's string specific and well named
+    'unicorn/prefer-string-slice': 0, // substr is just as fine as it's string specific and well named
 
     /**
      *****************************************
@@ -70,10 +68,18 @@ module.exports = {
     '@typescript-eslint/restrict-plus-operands': 0, // rule is broken
     '@typescript-eslint/no-unsafe-call': 0, // seems to have issues with default import types
     '@typescript-eslint/unbound-method': 1,
-    '@typescript-eslint/no-redeclare': 'off', // we use to declare enum type and object with the same name
-    '@typescript-eslint/no-shadow': 'off', // we use shadow mostly within the canvas renderer function when we need a new context
+    '@typescript-eslint/no-redeclare': 0, // we use to declare enum type and object with the same name
+    '@typescript-eslint/no-shadow': 0, // we use shadow mostly within the canvas renderer function when we need a new context
+    '@typescript-eslint/no-unsafe-argument': 1,
     'unicorn/consistent-function-scoping': 1,
     'unicorn/explicit-length-check': 1,
+    'unicorn/no-array-for-each': 0,
+    'unicorn/no-static-only-class': 0,
+    'unicorn/prefer-logical-operator-over-ternary': 0, // use when fixable
+    'unicorn/prefer-code-point': 0, // use when fixable
+    'unicorn/no-new-array': 0, // use when fixable
+    'unicorn/consistent-destructuring': 0,
+    'unicorn/no-object-as-default-parameter': 0,
     'import/no-cycle': [0, { maxDepth: 3, ignoreExternal: true }], // TODO: should error when this is fixed https://github.com/benmosher/eslint-plugin-import/issues/1453
     'no-use-before-define': 0,
     'no-restricted-properties': 0, // need to find and filter desired options
@@ -85,11 +91,14 @@ module.exports = {
     'no-shadow': 1,
     'react/no-array-index-key': 1,
     'react/prefer-stateless-function': 1,
-    'react/require-default-props': 'off',
-    'react/display-name': 'off',
+    'react/require-default-props': 0,
+    'react/display-name': 0,
+    'react/require-render-return': 0, // rule is broken for certain types of function syntax
+    'react/prefer-stateless-function': 0, // annoying rule that could be used in the future
     'jsx-a11y/no-static-element-interactions': 1,
     'jsx-a11y/mouse-events-have-key-events': 1,
     'jsx-a11y/click-events-have-key-events': 1,
+    'jsx-a11y/no-static-element-interactions': 0,
     '@typescript-eslint/member-ordering': 0,
     eqeqeq: 2,
 
@@ -105,7 +114,8 @@ module.exports = {
     'consistent-return': 0,
     'no-plusplus': 0,
     'no-bitwise': 0,
-    'no-void': 1,
+    'object-shorthand': ['error', 'properties'],
+    'no-void': [2, { allowAsStatement: true }],
     yoda: 0,
     'no-restricted-globals': 0,
     'no-case-declarations': 0,
@@ -114,7 +124,7 @@ module.exports = {
     'no-continue': 0,
     'no-lonely-if': 0,
     'no-return-assign': 0,
-    'no-underscore-dangle': ['error', { allow: ['__REDUX_DEVTOOLS_EXTENSION_COMPOSE__'] }],
+    'no-underscore-dangle': 0,
     'no-confusing-arrow': 0,
     'prefer-destructuring': 0,
     'function-paren-newline': 0,
@@ -164,6 +174,7 @@ module.exports = {
      * @typescript-eslint plugin
      */
     '@typescript-eslint/interface-name-prefix': 0,
+    '@typescript-eslint/ban-types': 1,
     '@typescript-eslint/return-await': ['error', 'always'], // https://v8.dev/blog/fast-async
     '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'no-public' }],
     '@typescript-eslint/no-explicit-any': 0,
@@ -172,6 +183,7 @@ module.exports = {
     '@typescript-eslint/ban-ts-ignore': 0,
     '@typescript-eslint/indent': 0,
     '@typescript-eslint/no-inferrable-types': 0,
+    '@typescript-eslint/prefer-regexp-exec': 0,
     '@typescript-eslint/ban-ts-comment': [
       2,
       {
@@ -252,13 +264,6 @@ module.exports = {
     'react/jsx-wrap-multilines': 0,
 
     /*
-     * jest plugin
-     */
-    'jest/no-standalone-expect': 0, // using custom expect functions
-    'jest/no-disabled-tests': 0,
-    'jest/no-identical-title': 0, // does not account for <describe|it>.each
-
-    /*
      * unicorn plugin
      */
     'unicorn/prevent-abbreviations': 0, // Common abbreviations are known and readable
@@ -274,16 +279,32 @@ module.exports = {
     'unicorn/no-zero-fractions': 0,
     'unicorn/prefer-node-remove': 0, // not IE11 compatible
     'unicorn/no-unreadable-array-destructuring': 0,
+    'unicorn/no-negated-condition': 0,
+    'unicorn/no-useless-spread': 0,
     'unicorn/filename-case': [
       'error',
       {
         case: 'snakeCase',
+        ignore: [/ts-debounce\.ts$/],
       },
     ],
-    'unicorn/no-array-callback-reference': 'off',
-    'unicorn/no-array-reduce': 'off',
-    'unicorn/prefer-dom-node-append': 'off',
-    'unicorn/prefer-dom-node-remove': 'off',
+    'unicorn/no-array-callback-reference': 0,
+    'unicorn/no-array-reduce': 0,
+    'unicorn/prefer-dom-node-append': 0,
+    'unicorn/prefer-dom-node-remove': 0,
+    'unicorn/prefer-top-level-await': 0,
+    'unicorn/prefer-node-protocol': 0,
+    'unicorn/prefer-module': 0,
+    'unicorn/no-array-push-push': 0,
+    'unicorn/prefer-native-coercion-functions': 0, // user choice
+    'unicorn/numeric-separators-style': 0,
+    'unicorn/no-array-method-this-argument': 0, // This rule only looks for method names, thus fails on non-arrays
+    'unicorn/explicit-length-check': 0, // This rule only looks for property name, thus fails on non-maps
+    'unicorn/no-await-expression-member': 0,
+    'unicorn/prefer-object-from-entries': 0,
+    'unicorn/no-useless-switch-case': 0,
+    'unicorn/prefer-dom-node-dataset': 0,
+    'unicorn/switch-case-braces': 0,
 
     /*
      * file-header plugin
@@ -352,7 +373,10 @@ module.exports = {
                 'error',
                 {
                   zones: [
-                    { target: './packages/charts/src', from: './packages/charts/src/index.ts' },
+                    {
+                      target: './packages/charts/src',
+                      from: './packages/charts/src/index.ts',
+                    },
                     {
                       target: './packages/charts/src',
                       from: './',
@@ -369,6 +393,10 @@ module.exports = {
             name: 're-reselect',
             importNames: ['default'],
             message: 'Please use `createCustomCachedSelector` instead.',
+          },
+          {
+            name: 'ts-debounce',
+            message: 'Please import from packages/charts/src/state/utils.ts',
           },
         ],
         'no-underscore-dangle': 2,
@@ -387,7 +415,7 @@ module.exports = {
       },
     },
     {
-      files: ['*.js', 'integration/**/*.ts?(x)'],
+      files: ['*.js'],
       rules: {
         '@typescript-eslint/no-var-requires': 0,
         '@typescript-eslint/no-unsafe-call': 0,
@@ -411,32 +439,41 @@ module.exports = {
       },
     },
     {
-      files: ['integration/**/*.ts?(x)'],
-      rules: {
-        'jest/expect-expect': [
-          'error',
-          {
-            assertFunctionNames: [
-              'expect',
-              'common.expectChartAtUrlToMatchScreenshot',
-              'common.expectElementAtUrlToMatchScreenshot',
-              'common.expectChartAtUrlToMatchScreenshot',
-              'common.expectChartWithMouseAtUrlToMatchScreenshot',
-              'common.expectChartWithDragAtUrlToMatchScreenshot',
-            ],
-          },
-        ],
-      },
-    },
-    {
       files: ['playground/**/*.ts?(x)'],
       rules: {
         'react/prefer-stateless-function': 0,
       },
     },
     {
-      files: ['*.test.ts?(x)', '**/__mocks__/**/*.ts?(x)', 'packages/charts/src/mocks/**'],
+      files: ['.buildkite/**/*', 'github_bot/**/*'],
       rules: {
+        'no-console': 0,
+        'unicorn/no-process-exit': 0,
+        'unicorn/prefer-ternary': 0,
+        'unicorn/no-object-as-default-parameter': 0,
+        '@typescript-eslint/naming-convention': 0,
+      },
+    },
+    {
+      files: ['./**/@types/*.d.ts'],
+      rules: {
+        'unicorn/filename-case': 0,
+      },
+    },
+    {
+      files: [
+        '*.test.ts?(x)',
+        '**/__mocks__/**/*.ts?(x)',
+        'packages/charts/src/mocks/**',
+        'packages/charts/src/utils/data_samples/**',
+      ],
+      excludedFiles: ['./e2e/**/*.test.ts'],
+      extends: ['plugin:jest/recommended'],
+      rules: {
+        'jest/expect-expect': 0,
+        'jest/no-standalone-expect': 0, // using custom expect functions
+        'jest/no-disabled-tests': 0,
+        'jest/no-identical-title': 0, // does not account for <describe|it>.each
         'elastic-charts/require-release-tag': 0,
         'elastic-charts/require-tsdocs': 0,
         'elastic-charts/require-documentation': 0,
@@ -444,6 +481,7 @@ module.exports = {
         // Cannot check extraneous deps in test files with this mono setup
         // see https://github.com/benmosher/eslint-plugin-import/issues/1174
         'import/no-extraneous-dependencies': 0,
+        '@typescript-eslint/no-loss-of-precision': 0,
       },
     },
     {
@@ -474,13 +512,6 @@ module.exports = {
             message: 'Please remove before committing changes.',
           },
         ],
-      },
-    },
-    {
-      files: ['packages/link_kibana/**/*.js'],
-      rules: {
-        'no-console': 0,
-        'promise/no-promise-in-callback': 0,
       },
     },
   ],

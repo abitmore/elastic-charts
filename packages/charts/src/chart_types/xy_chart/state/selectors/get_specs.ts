@@ -10,7 +10,7 @@ import { ChartType } from '../../..';
 import { GroupBySpec, SmallMultiplesSpec } from '../../../../specs';
 import { SpecType } from '../../../../specs/constants';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
-import { getSpecs } from '../../../../state/selectors/get_settings_specs';
+import { getSpecs } from '../../../../state/selectors/get_specs';
 import { getSpecsFromStore } from '../../../../state/utils';
 import { AnnotationSpec, AxisSpec, BasicSeriesSpec } from '../../utils/specs';
 
@@ -42,13 +42,14 @@ export const getAnnotationSpecsSelector = createCustomCachedSelector([getSpecs],
 );
 
 /** @internal */
-export const getSmallMultiplesIndexOrderSelector = createCustomCachedSelector([getSpecs], (specs):
-  | SmallMultiplesGroupBy
-  | undefined => {
-  const [smallMultiples] = getSpecsFromStore<SmallMultiplesSpec>(specs, ChartType.Global, SpecType.SmallMultiples);
-  const groupBySpecs = getSpecsFromStore<GroupBySpec>(specs, ChartType.Global, SpecType.IndexOrder);
-  return {
-    horizontal: groupBySpecs.find((s) => s.id === smallMultiples?.splitHorizontally),
-    vertical: groupBySpecs.find((s) => s.id === smallMultiples?.splitVertically),
-  };
-});
+export const getSmallMultiplesIndexOrderSelector = createCustomCachedSelector(
+  [getSpecs],
+  (specs): SmallMultiplesGroupBy | undefined => {
+    const [smallMultiples] = getSpecsFromStore<SmallMultiplesSpec>(specs, ChartType.Global, SpecType.SmallMultiples);
+    const groupBySpecs = getSpecsFromStore<GroupBySpec>(specs, ChartType.Global, SpecType.IndexOrder);
+    return {
+      horizontal: groupBySpecs.find((s) => s.id === smallMultiples?.splitHorizontally),
+      vertical: groupBySpecs.find((s) => s.id === smallMultiples?.splitVertically),
+    };
+  },
+);

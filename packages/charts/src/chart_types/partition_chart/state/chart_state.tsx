@@ -10,6 +10,7 @@ import { RefObject } from 'react';
 
 import { ChartType } from '../..';
 import { BackwardRef, GlobalChartState, InternalChartState } from '../../../state/chart_state';
+import { getActivePointerPosition } from '../../../state/selectors/get_active_pointer_position';
 import { InitStatus } from '../../../state/selectors/get_internal_is_intialized';
 import { DebugState } from '../../../state/types';
 import { Dimensions } from '../../../utils/dimensions';
@@ -61,6 +62,8 @@ export class PartitionState implements InternalChartState {
 
   getLegendItemsLabels(globalState: GlobalChartState) {
     // order doesn't matter, but it needs to return the highest depth of the label occurrence so enough horizontal width is allocated
+    // the label item strings needs to be a concatenation of the label + the extra formatted value if available.
+    // this is required to compute the legend automatic width
     return getLegendItemsLabels(globalState);
   }
 
@@ -84,6 +87,8 @@ export class PartitionState implements InternalChartState {
     return {
       visible: isTooltipVisibleSelector(globalState),
       isExternal: false,
+      displayOnly: false,
+      isPinnable: true,
     };
   }
 
@@ -92,7 +97,7 @@ export class PartitionState implements InternalChartState {
   }
 
   getTooltipAnchor(state: GlobalChartState) {
-    const { position } = state.interactions.pointer.current;
+    const position = getActivePointerPosition(state);
     return {
       isRotated: false,
       x: position.x,

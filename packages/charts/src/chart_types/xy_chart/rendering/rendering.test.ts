@@ -17,6 +17,7 @@ import { getPointStyleOverrides, getRadiusFn } from './points';
 import { getGeometryStateStyle, isPointOnGeometry, getClippedRanges } from './utils';
 
 describe('Rendering utils', () => {
+  const MIN_DISTANCE_BUFFER = 10;
   test('check if point is on geometry', () => {
     const seriesStyle = {
       rect: {
@@ -40,6 +41,7 @@ describe('Rendering utils', () => {
       color: 'red',
       seriesIdentifier: {
         specId: 'id',
+        xAccessor: 'x',
         yAccessor: 'y1',
         splitAccessors: new Map(),
         seriesKeys: [],
@@ -58,19 +60,20 @@ describe('Rendering utils', () => {
       height: 10,
       seriesStyle,
     });
-    expect(isPointOnGeometry(0, 0, geometry)).toBe(true);
-    expect(isPointOnGeometry(10, 10, geometry)).toBe(true);
-    expect(isPointOnGeometry(0, 10, geometry)).toBe(true);
-    expect(isPointOnGeometry(10, 0, geometry)).toBe(true);
-    expect(isPointOnGeometry(-10, 0, geometry)).toBe(false);
-    expect(isPointOnGeometry(-11, 0, geometry)).toBe(false);
-    expect(isPointOnGeometry(11, 11, geometry)).toBe(false);
+    expect(isPointOnGeometry(0, 0, geometry, MIN_DISTANCE_BUFFER)).toBe(true);
+    expect(isPointOnGeometry(10, 10, geometry, MIN_DISTANCE_BUFFER)).toBe(true);
+    expect(isPointOnGeometry(0, 10, geometry, MIN_DISTANCE_BUFFER)).toBe(true);
+    expect(isPointOnGeometry(10, 0, geometry, MIN_DISTANCE_BUFFER)).toBe(true);
+    expect(isPointOnGeometry(-10, 0, geometry, MIN_DISTANCE_BUFFER)).toBe(false);
+    expect(isPointOnGeometry(-11, 0, geometry, MIN_DISTANCE_BUFFER)).toBe(false);
+    expect(isPointOnGeometry(11, 11, geometry, MIN_DISTANCE_BUFFER)).toBe(false);
   });
   test('check if point is on point geometry', () => {
     const geometry = MockPointGeometry.default({
       color: 'red',
       seriesIdentifier: {
         specId: 'id',
+        xAccessor: 'x',
         yAccessor: 'y1',
         splitAccessors: new Map(),
         seriesKeys: [],
@@ -114,6 +117,7 @@ describe('Rendering utils', () => {
   describe('should get common geometry style dependent on legend item highlight state', () => {
     const seriesIdentifier: XYChartSeriesIdentifier = {
       specId: 'id',
+      xAccessor: 'x',
       yAccessor: 'y1',
       splitAccessors: new Map(),
       seriesKeys: [],
@@ -184,30 +188,6 @@ describe('Rendering utils', () => {
       );
       expect(customUnhighlightedStyle).toBe(sharedThemeStyle.unhighlighted);
     });
-
-    it('has individual highlight', () => {
-      const hasIndividualHighlight = getGeometryStateStyle(seriesIdentifier, sharedThemeStyle, undefined, {
-        hasHighlight: true,
-        hasGeometryHover: true,
-      });
-      expect(hasIndividualHighlight).toBe(sharedThemeStyle.highlighted);
-    });
-
-    it('no highlight', () => {
-      const noHighlight = getGeometryStateStyle(seriesIdentifier, sharedThemeStyle, undefined, {
-        hasHighlight: false,
-        hasGeometryHover: true,
-      });
-      expect(noHighlight).toBe(sharedThemeStyle.unhighlighted);
-    });
-
-    it('no geometry hover', () => {
-      const noHover = getGeometryStateStyle(seriesIdentifier, sharedThemeStyle, undefined, {
-        hasHighlight: true,
-        hasGeometryHover: false,
-      });
-      expect(noHover).toBe(sharedThemeStyle.highlighted);
-    });
   });
 
   describe('getBarStyleOverrides', () => {
@@ -241,6 +221,7 @@ describe('Rendering utils', () => {
     };
     const seriesIdentifier: XYChartSeriesIdentifier = {
       specId: 'test',
+      xAccessor: 'tex',
       yAccessor: 'test',
       splitAccessors: new Map(),
       seriesKeys: ['test'],
@@ -267,7 +248,7 @@ describe('Rendering utils', () => {
     it('should call barStyleAccessor with datum and seriesIdentifier', () => {
       getBarStyleOverrides(datum, seriesIdentifier, sampleSeriesStyle, mockAccessor);
 
-      expect(mockAccessor).toBeCalledWith(datum, seriesIdentifier);
+      expect(mockAccessor).toHaveBeenCalledWith(datum, seriesIdentifier);
     });
 
     it('should return seriesStyle with updated fill color', () => {
@@ -333,6 +314,7 @@ describe('Rendering utils', () => {
     };
     const seriesIdentifier: XYChartSeriesIdentifier = {
       specId: 'test',
+      xAccessor: 'tex',
       yAccessor: 'test',
       splitAccessors: new Map(),
       seriesKeys: ['test'],
@@ -359,7 +341,7 @@ describe('Rendering utils', () => {
     it('should call pointStyleAccessor with datum and seriesIdentifier', () => {
       getPointStyleOverrides(datum, seriesIdentifier, mockAccessor);
 
-      expect(mockAccessor).toBeCalledWith(datum, seriesIdentifier);
+      expect(mockAccessor).toHaveBeenCalledWith(datum, seriesIdentifier);
     });
 
     it('should return seriesStyle with updated stroke color', () => {
@@ -479,26 +461,8 @@ describe('Rendering utils', () => {
 
       describe('Dataset validations', () => {
         const expectedValues = [
-          15.29,
-          40.89,
-          13.39,
-          36.81,
-          44.66,
-          44.34,
-          51.01,
-          6.97,
-          34.04,
-          49.07,
-          45.11,
-          25.44,
-          8.98,
-          9.33,
-          50.62,
-          48.89,
-          44.34,
-          1,
-          33.09,
-          5.94,
+          15.29, 40.89, 13.39, 36.81, 44.66, 44.34, 51.01, 6.97, 34.04, 49.07, 45.11, 25.44, 8.98, 9.33, 50.62, 48.89,
+          44.34, 1, 33.09, 5.94,
         ];
         it.each<[number | null, number]>(data.map(({ mark }, i) => [mark, expectedValues[i]]))(
           'should return stepped value from domain - data[%#]',

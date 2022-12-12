@@ -9,7 +9,7 @@
 import { ChartType } from '../../..';
 import { Color, Colors } from '../../../../common/colors';
 import { Pixels } from '../../../../common/geometry';
-import { Box, Font } from '../../../../common/text_utils';
+import { Box, Font, TextAlign } from '../../../../common/text_utils';
 import { Fill, Line, Rect, Stroke } from '../../../../geoms/types';
 import { HeatmapBrushEvent } from '../../../../specs/settings';
 import { Point } from '../../../../utils/point';
@@ -36,10 +36,14 @@ export interface Cell {
 }
 
 /** @internal */
+export type GridCell = { x: NonNullable<PrimitiveValue>; y: NonNullable<PrimitiveValue> };
+
+/** @internal */
 export interface TextBox extends Box {
   value: NonNullable<PrimitiveValue>;
   x: number;
   y: number;
+  align: TextAlign;
 }
 
 /** @internal */
@@ -96,6 +100,12 @@ export type PickHighlightedArea = (
 ) => Rect | null;
 
 /** @internal */
+export type PickCursorBand = (x: NonNullable<PrimitiveValue>) => Rect | undefined;
+
+/** @internal */
+export type PickGridCell = (x: Pixels, y: Pixels) => GridCell | undefined;
+
+/** @internal */
 export type DragShape = ReturnType<PickDragShapeFunction>;
 
 /** @internal */
@@ -106,6 +116,8 @@ export type ShapeViewModel = {
   pickDragArea: PickDragFunction;
   pickDragShape: PickDragShapeFunction;
   pickHighlightedArea: PickHighlightedArea;
+  pickGridCell: PickGridCell;
+  pickCursorBand: PickCursorBand;
 };
 
 /** @internal */
@@ -135,4 +147,6 @@ export const nullShapeViewModel = (): ShapeViewModel => ({
   pickDragArea: () => ({ cells: [], x: [], y: [], chartType: ChartType.Heatmap }),
   pickDragShape: () => ({ x: 0, y: 0, width: 0, height: 0 }),
   pickHighlightedArea: () => ({ x: 0, y: 0, width: 0, height: 0 }),
+  pickGridCell: () => undefined,
+  pickCursorBand: () => undefined,
 });

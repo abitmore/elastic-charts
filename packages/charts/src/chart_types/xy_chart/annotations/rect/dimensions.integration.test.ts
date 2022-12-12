@@ -267,7 +267,7 @@ describe('Render rect annotation within', () => {
     const heightFromStore = 200;
     const store = MockStore.default({ top: 0, left: 0, width: 20, height: heightFromStore });
     const settings = MockGlobalSpec.settingsNoMargins();
-    const yDomainFitted = MockGlobalSpec.axis({ domain: { min: NaN, max: NaN, fit: true } });
+    const yDomainFitted = MockGlobalSpec.yAxis({ domain: { fit: true } });
     const annotation = MockAnnotationSpec.rect({
       dataValues: [{ coordinates: { x0: 2, x1: 4 } }],
     });
@@ -282,7 +282,7 @@ describe('Render rect annotation within', () => {
     const expected = computeAnnotationDimensionsSelector(store.getState());
     const [resultAnnotation] = expected.get('rect_annotation_1') ?? [];
     expect(resultAnnotation).toMatchObject({
-      rect: { height: 190 },
+      rect: { height: 200 },
     });
   });
   it('annotation with group id should render with x0 and x1 values', () => {

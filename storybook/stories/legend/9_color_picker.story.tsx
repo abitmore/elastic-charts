@@ -6,8 +6,8 @@
  * Side Public License, v 1.
  */
 
-import { EuiColorPicker, EuiWrappingPopover, EuiButton, EuiSpacer, EuiFlexItem, EuiButtonEmpty } from '@elastic/eui';
 import { action } from '@storybook/addon-actions';
+import { boolean } from '@storybook/addon-knobs';
 import React, { useState, useMemo } from 'react';
 
 import {
@@ -25,53 +25,53 @@ import {
 import { BARCHART_1Y1G } from '@elastic/charts/src/utils/data_samples/test_dataset';
 
 import { useBaseTheme } from '../../use_base_theme';
+import { getColorPicker } from '../utils/components/get_color_picker';
+import { getLegendAction } from '../utils/components/get_legend_action';
 
 const onChangeAction = action('onChange');
 
 export const Example = () => {
   const [colors, setColors] = useState<Record<SeriesKey, Color | null>>({});
+  const showAction = boolean('show legend action', false);
 
   const CustomColorPicker: LegendColorPicker = useMemo(
-    () => ({ anchor, color, onClose, seriesIdentifiers, onChange }) => {
-      const handleClose = () => {
-        onClose();
-        setColors((prevColors) => ({
-          ...prevColors,
-          ...toEntries(seriesIdentifiers, 'key', color),
-        }));
-      };
-      const handleChange = (c: Color | null) => {
-        setColors((prevColors) => ({
-          ...prevColors,
-          ...toEntries(seriesIdentifiers, 'key', c),
-        }));
-        onChange(c);
-        onChangeAction(c);
-      };
+    () =>
+      ({ anchor, color, onClose, seriesIdentifiers, onChange }) => {
+        const handleClose = () => {
+          onClose();
+          setColors((prevColors) => ({
+            ...prevColors,
+            ...toEntries(seriesIdentifiers, 'key', color),
+          }));
+        };
+        const handleChange = (c: Color | null) => {
+          setColors((prevColors) => ({
+            ...prevColors,
+            ...toEntries(seriesIdentifiers, 'key', c),
+          }));
+          onChange(c);
+          onChangeAction(c);
+        };
 
-      return (
-        <>
-          <EuiWrappingPopover isOpen button={anchor} closePopover={handleClose} anchorPosition="leftCenter">
-            <EuiColorPicker display="inline" color={color} onChange={handleChange} />
-            <EuiSpacer size="m" />
-            <EuiFlexItem grow={false}>
-              <EuiButtonEmpty size="s" onClick={() => handleChange(null)}>
-                Clear color
-              </EuiButtonEmpty>
-            </EuiFlexItem>
-            <EuiButton fullWidth size="s" onClick={handleClose}>
-              Done
-            </EuiButton>
-          </EuiWrappingPopover>
-        </>
-      );
-    },
+        return getColorPicker()({
+          anchor,
+          color,
+          onClose: handleClose,
+          onChange: handleChange,
+          seriesIdentifiers,
+        });
+      },
     [setColors],
   );
   CustomColorPicker.displayName = 'CustomColorPicker';
   return (
     <Chart>
-      <Settings showLegend legendColorPicker={CustomColorPicker} baseTheme={useBaseTheme()} />
+      <Settings
+        showLegend
+        legendColorPicker={CustomColorPicker}
+        baseTheme={useBaseTheme()}
+        legendAction={showAction ? getLegendAction() : undefined}
+      />
       <Axis id="bottom" position={Position.Bottom} title="Bottom axis" showOverlappingTicks />
       <Axis id="left2" title="Left axis" position={Position.Left} tickFormat={(d: any) => Number(d).toFixed(2)} />
 

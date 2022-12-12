@@ -11,19 +11,19 @@ import {
   PointerEvent,
   isPointerOutEvent,
   TooltipValue,
-  TooltipValueFormatter,
   isFollowTooltipType,
   SettingsSpec,
   getTooltipType,
-  getShowNullValues,
+  TooltipSpec,
 } from '../../../../specs';
 import { TooltipType } from '../../../../specs/constants';
 import { GlobalChartState } from '../../../../state/chart_state';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
 import { getChartRotationSelector } from '../../../../state/selectors/get_chart_rotation';
-import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_specs';
-import { getTooltipHeaderFormatterSelector } from '../../../../state/selectors/get_tooltip_header_formatter';
-import { Rotation } from '../../../../utils/common';
+import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_spec';
+import { getTooltipInteractionState } from '../../../../state/selectors/get_tooltip_interaction_state';
+import { getTooltipSpecSelector } from '../../../../state/selectors/get_tooltip_spec';
+import { isNil, Rotation } from '../../../../utils/common';
 import { isValidPointerOverEvent } from '../../../../utils/events';
 import { IndexedGeometry } from '../../../../utils/geometry';
 import { Point } from '../../../../utils/point';
@@ -60,7 +60,7 @@ export interface TooltipAndHighlightedGeoms {
 const getExternalPointerEventStateSelector = (state: GlobalChartState) => state.externalEvents.pointer;
 
 /** @internal */
-export const getTooltipInfoAndGeometriesSelector = createCustomCachedSelector(
+export const getTooltipInfoAndGeomsSelector = createCustomCachedSelector(
   [
     getSeriesSpecsSelector,
     getAxisSpecsSelector,
@@ -73,7 +73,7 @@ export const getTooltipInfoAndGeometriesSelector = createCustomCachedSelector(
     getElementAtCursorPositionSelector,
     getSiDataSeriesMapSelector,
     getExternalPointerEventStateSelector,
-    getTooltipHeaderFormatterSelector,
+    getTooltipSpecSelector,
   ],
   getTooltipAndHighlightFromValue,
 );
@@ -90,16 +90,19 @@ function getTooltipAndHighlightFromValue(
   matchingGeoms: IndexedGeometry[],
   serialIdentifierDataSeriesMap: Record<string, DataSeries>,
   externalPointerEvent: PointerEvent | null,
-  tooltipHeaderFormatter?: TooltipValueFormatter,
+  tooltip: TooltipSpec,
 ): TooltipAndHighlightedGeoms {
   if (!scales.xScale || !scales.yScales) {
     return EMPTY_VALUES;
   }
 
   let { x, y } = orientedProjectedPointerPosition;
-  let tooltipType = getTooltipType(settings);
+  let tooltipType = getTooltipType(tooltip, settings);
   if (isValidPointerOverEvent(scales.xScale, externalPointerEvent)) {
-    tooltipType = getTooltipType(settings, true);
+    tooltipType = getTooltipType(tooltip, settings, true);
+    if (isNil(externalPointerEvent.x)) {
+      return EMPTY_VALUES;
+    }
     const scaledX = scales.xScale.pureScale(externalPointerEvent.x);
 
     if (Number.isNaN(scaledX)) {
@@ -124,7 +127,7 @@ function getTooltipAndHighlightFromValue(
   let header: TooltipValue | null = null;
   const highlightedGeometries: IndexedGeometry[] = [];
   const xValues = new Set<any>();
-  const hideNullValues = !getShowNullValues(settings);
+  const hideNullValues = !tooltip.showNullValues;
   const values = matchingGeoms.reduce<TooltipValue[]>((acc, indexedGeometry) => {
     if (hideNullValues && indexedGeometry.value.y === null) {
       return acc;
@@ -156,19 +159,13 @@ function getTooltipAndHighlightFromValue(
       highlightedGeometries.push(indexedGeometry);
     }
 
-    // if it's a follow tooltip, and no element is highlighted
-    // do _not_ add element into tooltip list
-    if (!isHighlighted && isFollowTooltipType(tooltipType)) {
-      return acc;
-    }
-
     // format the tooltip values
     const formattedTooltip = formatTooltip(indexedGeometry, spec, false, isHighlighted, hasSingleSeries, yAxis);
 
     // format only one time the x value
     if (!header) {
       // if we have a tooltipHeaderFormatter, then don't pass in the xAxis as the user will define a formatter
-      const formatterAxis = tooltipHeaderFormatter ? undefined : xAxis;
+      const formatterAxis = tooltip.headerFormatter ? undefined : xAxis;
       header = formatTooltip(indexedGeometry, spec, true, false, hasSingleSeries, formatterAxis);
     }
 
@@ -202,13 +199,34 @@ function getTooltipAndHighlightFromValue(
 }
 
 /** @internal */
+export const getHighlightedTooltipTooltipValuesSelector = createCustomCachedSelector(
+  [getTooltipInteractionState, getTooltipInfoAndGeomsSelector, getTooltipSpecSelector, getSettingsSpecSelector],
+  ({ pinned }, values, tooltip, settings): TooltipAndHighlightedGeoms => {
+    const tooltipType = getTooltipType(tooltip, settings);
+    const highlightedValues = values.tooltip.values.filter((v) => v.isHighlighted);
+    const hasTooltipContent = values.tooltip.values.length > tooltip.maxTooltipItems && highlightedValues.length > 0;
+
+    if (!pinned && (isFollowTooltipType(tooltipType) || hasTooltipContent)) {
+      return {
+        ...values,
+        tooltip: {
+          ...values.tooltip,
+          values: highlightedValues,
+        },
+      };
+    }
+    return values;
+  },
+);
+
+/** @internal */
 export const getTooltipInfoSelector = createCustomCachedSelector(
-  [getTooltipInfoAndGeometriesSelector],
+  [getHighlightedTooltipTooltipValuesSelector],
   ({ tooltip }): TooltipInfo => tooltip,
 );
 
 /** @internal */
 export const getHighlightedGeomsSelector = createCustomCachedSelector(
-  [getTooltipInfoAndGeometriesSelector],
+  [getHighlightedTooltipTooltipValuesSelector],
   ({ highlightedGeometries }): IndexedGeometry[] => highlightedGeometries,
 );

@@ -9,7 +9,7 @@
 import * as commonColors from '../../../../../common/color_library_wrappers';
 import { colorToRgba } from '../../../../../common/color_library_wrappers';
 import { Fill } from '../../../../../geoms/types';
-import { getMockCanvas, getMockCanvasContext2D, MockStyles } from '../../../../../mocks';
+import { MockStyles } from '../../../../../mocks';
 import * as common from '../../../../../utils/common';
 import { getTextureStyles } from '../../../utils/texture';
 import { buildAreaStyles } from './area';
@@ -23,11 +23,6 @@ const COLOR = 'aquamarine';
 describe('Area styles', () => {
   let ctx: CanvasRenderingContext2D;
   let imgCanvas: HTMLCanvasElement;
-
-  beforeEach(() => {
-    ctx = getMockCanvasContext2D();
-    imgCanvas = getMockCanvas();
-  });
 
   describe('#buildAreaStyles', () => {
     let result: Fill;
@@ -46,7 +41,7 @@ describe('Area styles', () => {
     });
 
     it('should call getColorFromVariant with correct args for fill', () => {
-      expect(common.getColorFromVariant).nthCalledWith(1, baseColor, themeAreaStyle.fill);
+      expect(common.getColorFromVariant).toHaveBeenNthCalledWith(1, baseColor, themeAreaStyle.fill);
     });
 
     describe('Colors', () => {
@@ -58,7 +53,7 @@ describe('Area styles', () => {
       });
 
       it('should call colorToRgba with values from getColorFromVariant', () => {
-        expect(colorToRgba).nthCalledWith(1, fillColor);
+        expect(colorToRgba).toHaveBeenNthCalledWith(1, fillColor);
       });
 
       it('should return fill with color', () => {
@@ -100,8 +95,8 @@ describe('Area styles', () => {
       });
 
       it('should call getTextureStyles with params', () => {
-        expect(getTextureStyles).toBeCalledTimes(1);
-        expect(getTextureStyles).toBeCalledWith(ctx, imgCanvas, baseColor, expect.anything(), texture);
+        expect(getTextureStyles).toHaveBeenCalledTimes(1);
+        expect(getTextureStyles).toHaveBeenCalledWith(ctx, imgCanvas, baseColor, expect.anything(), texture);
       });
     });
   });

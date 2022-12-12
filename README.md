@@ -3,11 +3,13 @@
   Elastic Charts
 </h1>
 <p align="center">
-  <img alt="Build Status" src="https://github.com/elastic/elastic-charts/workflows/Unit%20testing/badge.svg?branch=master">
-  <a href="https://www.npmjs.com/@elastic/charts"><img alt="NPM version" src="https://img.shields.io/npm/v/@elastic/charts.svg?style=flat"></a>
+  <a href="https://buildkite.com/elastic/datavis-ci/builds?branch=master">
+    <img alt="Build Status - master branch" src="https://badge.buildkite.com/1b2f6369ef27e5b23a7fccf2545d7d6e31bff1957c7c941d31.svg?branch=master">
+  </a>
+  <a href="https://www.npmjs.com/@elastic/charts"><img alt="NPM version" src="https://img.shields.io/npm/v/@elastic/charts.svg"></a>
   <a href="http://commitizen.github.io/cz-cli/"><img alt="Commitizen friendly" src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg"></a>
   <a href="https://elastic.github.io/elastic-charts">
-    <img src="https://img.shields.io/static/v1?label=examples&message=storybook&color=blueviolet">
+    <img src="https://img.shields.io/static/v1?label=examples&message=storybook&color=ff4685">
   </a>
 </p>
 
@@ -58,9 +60,9 @@ As a single source of truth, the framework allows our designers to make changes 
 
 ## Contributing
 
-You can find documentation around creating and submitting new features in [CONTRIBUTING.md][contributing].
+You can find documentation around creating and submitting new features in [contributing][contributing].
 
-## Wiki
+## [Wiki](https://github.com/elastic/elastic-charts/wiki)
 
 ### Consumption
 
@@ -76,9 +78,9 @@ You can find documentation around creating and submitting new features in [CONTR
 [Dual-licensed under Elastic v2 and Server Side Public License, v 1][license] Read the [FAQ][faq] for details.
 
 [license]: LICENSE.txt
-[faq]: FAQ.md
+[faq]: https://github.com/elastic/elastic-charts/wiki/FAQ
 [docs]: https://elastic.github.io/elastic-charts/
-[consuming]: wiki/consuming.md
-[overview]: wiki/overview.md
-[theming]: wiki/theming.md
-[contributing]: CONTRIBUTING.md
+[consuming]: https://github.com/elastic/elastic-charts/wiki/Consuming-Elastic-Charts
+[overview]: https://github.com/elastic/elastic-charts/wiki/Overview
+[theming]: https://github.com/elastic/elastic-charts/wiki/Theming
+[contributing]: https://github.com/elastic/elastic-charts/wiki/Contributing-to-Elastic-Charts

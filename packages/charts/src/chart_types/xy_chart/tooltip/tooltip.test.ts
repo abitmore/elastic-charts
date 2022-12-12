@@ -40,7 +40,7 @@ describe('Tooltip formatting', () => {
     ...SPEC_1,
     y0Accessors: [1],
   });
-  const YAXIS_SPEC = MockGlobalSpec.axis({
+  const YAXIS_SPEC = MockGlobalSpec.yAxis({
     chartType: ChartType.XYAxis,
     specType: SpecType.Axis,
     id: 'axis_1',
@@ -78,6 +78,7 @@ describe('Tooltip formatting', () => {
     seriesIdentifier: {
       specId: SPEC_ID_1,
       key: '',
+      xAccessor: 'x',
       yAccessor: 'y1',
       splitAccessors: new Map(),
       seriesKeys: [],
@@ -100,6 +101,7 @@ describe('Tooltip formatting', () => {
     seriesIdentifier: {
       specId: SPEC_ID_1,
       key: '',
+      xAccessor: 'x',
       yAccessor: 'y1',
       splitAccessors: new Map(),
       seriesKeys: [],
@@ -124,7 +126,7 @@ describe('Tooltip formatting', () => {
     expect(tooltipValue.value).toBe(10);
     expect(tooltipValue.formattedValue).toBe('10');
     expect(tooltipValue.formattedValue).toBe('10');
-    expect(YAXIS_SPEC.tickFormat).not.toBeCalledWith(null);
+    expect(YAXIS_SPEC.tickFormat).not.toHaveBeenCalledWith(null);
   });
   it('should set name as spec name when provided', () => {
     const name = 'test - spec';
@@ -218,6 +220,7 @@ describe('Tooltip formatting', () => {
       seriesIdentifier: {
         specId: SPEC_ID_1,
         key: '',
+        xAccessor: 'x',
         yAccessor: 'y1',
         splitAccessors: new Map(),
         seriesKeys: ['y1'],
@@ -358,7 +361,7 @@ describe('Tooltip formatting', () => {
       expect(tooltipValue).toBeDefined();
       expect(tooltipValue.markValue).toBe(10);
       expect(tooltipValue.formattedMarkValue).toBe('10 number');
-      expect(markFormat).toBeCalledWith(10, undefined);
+      expect(markFormat).toHaveBeenCalledWith(10, undefined);
     });
 
     it('should format mark value with defaultTickFormatter', () => {
@@ -366,7 +369,7 @@ describe('Tooltip formatting', () => {
       expect(tooltipValue).toBeDefined();
       expect(tooltipValue.markValue).toBe(10);
       expect(tooltipValue.formattedMarkValue).toBe('10');
-      expect(markFormat).not.toBeCalled();
+      expect(markFormat).not.toHaveBeenCalled();
     });
   });
 });

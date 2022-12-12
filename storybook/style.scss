@@ -21,6 +21,7 @@
 }
 
 html {
+  font-size: 14px !important;
   &.light-theme {
     @import '~@elastic/eui/dist/eui_theme_light';
     @import '~@elastic/charts/src/theme_light';
@@ -53,7 +54,7 @@ html {
 
   &.eui {
     &.dark-theme {
-      @import '~@elastic/eui/src/themes/eui/eui_colors_dark.scss';
+      @import '~@elastic/eui/src/themes/amsterdam/colors_dark';
 
       body,
       .echChart {
@@ -62,7 +63,7 @@ html {
     }
 
     &.light-theme {
-      @import '~@elastic/eui/src/global_styling/variables/_colors.scss';
+      @import '~@elastic/eui/src/themes/amsterdam/colors_light';
 
       body,
       .echChart {
@@ -126,7 +127,7 @@ body {
   position: relative;
   z-index: 500;
   box-sizing: border-box;
-  background-color: blanchedalmond;
+  /* background-color: blanchedalmond; */
 }
 
 #story-header {

@@ -68,7 +68,7 @@ describe('Chart State utils', () => {
       data: BARCHART_1Y0G,
     });
     const scaleConfig = getScaleConfigsFromSpecs([], [spec1, spec2], MockGlobalSpec.settings());
-    const domains = computeSeriesDomains([spec1, spec2], scaleConfig);
+    const domains = computeSeriesDomains([spec1, spec2], scaleConfig, []);
     expect(domains.xDomain).toEqual(
       MockXDomain.fromScaleType(ScaleType.Linear, {
         domain: [0, 3],
@@ -120,7 +120,7 @@ describe('Chart State utils', () => {
       data: BARCHART_1Y1G,
     });
     const scaleConfig = getScaleConfigsFromSpecs([], [spec1, spec2], MockGlobalSpec.settings());
-    const domains = computeSeriesDomains([spec1, spec2], scaleConfig);
+    const domains = computeSeriesDomains([spec1, spec2], scaleConfig, []);
     expect(domains.xDomain).toEqual(
       MockXDomain.fromScaleType(ScaleType.Linear, {
         domain: [0, 3],
@@ -154,6 +154,7 @@ describe('Chart State utils', () => {
     const dataSeriesValuesA: XYChartSeriesIdentifier = {
       specId: 'a',
       yAccessor: 'y1',
+      xAccessor: 'x',
       splitAccessors: new Map(),
       seriesKeys: ['a', 'b', 'c'],
       key: 'a',
@@ -161,6 +162,7 @@ describe('Chart State utils', () => {
     const dataSeriesValuesB: XYChartSeriesIdentifier = {
       specId: 'b',
       yAccessor: 'y1',
+      xAccessor: 'x',
       splitAccessors: new Map(),
       seriesKeys: ['a', 'b', 'c'],
       key: 'b',
@@ -168,6 +170,7 @@ describe('Chart State utils', () => {
     const dataSeriesValuesC: XYChartSeriesIdentifier = {
       specId: 'c',
       yAccessor: 'y1',
+      xAccessor: 'x',
       splitAccessors: new Map(),
       seriesKeys: ['a', 'b', 'd'],
       key: 'c',
@@ -339,10 +342,10 @@ describe('Chart State utils', () => {
       const geometries = getGeometriesFromSpecs([line1, line2]);
 
       expect(geometries.geometriesIndex.size).toBe(4);
-      expect(geometries.geometriesIndex.find(0)?.length).toBe(2);
-      expect(geometries.geometriesIndex.find(1)?.length).toBe(2);
-      expect(geometries.geometriesIndex.find(2)?.length).toBe(2);
-      expect(geometries.geometriesIndex.find(3)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(0, 10)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(1, 10)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(2, 10)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(3, 10)?.length).toBe(2);
     });
 
     test('can compute stacked geometries indexes', () => {
@@ -370,10 +373,10 @@ describe('Chart State utils', () => {
       const geometries = getGeometriesFromSpecs([line1, line2]);
 
       expect(geometries.geometriesIndex.size).toBe(4);
-      expect(geometries.geometriesIndex.find(0)?.length).toBe(2);
-      expect(geometries.geometriesIndex.find(1)?.length).toBe(2);
-      expect(geometries.geometriesIndex.find(2)?.length).toBe(2);
-      expect(geometries.geometriesIndex.find(3)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(0, 10)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(1, 10)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(2, 10)?.length).toBe(2);
+      expect(geometries.geometriesIndex.find(3, 10)?.length).toBe(2);
     });
 
     test('can compute non stacked geometries counts', () => {

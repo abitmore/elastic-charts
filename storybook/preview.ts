@@ -6,16 +6,10 @@
  * Side Public License, v 1.
  */
 
-import { storybookParameters } from './parameters';
-import { preloadIcons } from './preload_icons';
 import { StoryWrapper } from './story_wrapper';
 
 import './style.scss';
 
-if (process.env.VRT) {
-  preloadIcons();
-  document.querySelector('html')?.classList.add('disable-animations');
-}
-
-export const parameters = storybookParameters;
 export const decorators = [StoryWrapper];
+
+export { storybookParameters as parameters } from './parameters';

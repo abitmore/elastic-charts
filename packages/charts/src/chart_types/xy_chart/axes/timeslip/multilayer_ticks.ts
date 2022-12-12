@@ -6,50 +6,63 @@
  * Side Public License, v 1.
  */
 
-import { Scale, ScaleContinuous } from '../../../../scales';
+import { ScaleContinuous } from '../../../../scales';
 import { XDomain } from '../../domains/types';
 import { AxisLabelFormatter } from '../../state/selectors/axis_tick_formatter';
-import { GetMeasuredTicks } from '../../state/selectors/visible_ticks';
-import { AxisTick } from '../../utils/axis_utils';
-import { rasters, TimeBin, TimeRaster } from './rasters';
+import { GetMeasuredTicks, Projection } from '../../state/selectors/visible_ticks';
+import { unitIntervalWidth, AxisLayer, Interval, continuousTimeRasters } from './continuous_time_rasters';
 
-const MAX_TIME_TICK_COUNT = 50; // this doesn't do much for narrow charts, but limits tick count to a maximum on wider ones
 const WIDTH_FUDGE = 1.05; // raster bin widths are sometimes approximate, but there's no raster that's just 5% denser/sparser, so it's safe
-const MAX_TIME_GRID_COUNT = 12;
 
 /** @internal */
-export const notTooDense = (
-  domainFrom: number,
-  domainTo: number,
-  binWidth: number,
-  cartesianWidth: number,
-  maxTickCount = MAX_TIME_TICK_COUNT,
-) => (raster: TimeRaster<TimeBin>) => {
-  const domainInSeconds = domainTo - domainFrom;
-  const pixelsPerSecond = cartesianWidth / domainInSeconds;
-  return (
-    pixelsPerSecond > raster.minimumPixelsPerSecond &&
-    raster.approxWidthInMs * WIDTH_FUDGE >= binWidth &&
-    (domainInSeconds * 1000) / maxTickCount <= raster.approxWidthInMs
-  );
-};
+export const MAX_TIME_TICK_COUNT = 50; // this doesn't do much for narrow charts, but limits tick count to a maximum on wider ones
+
+/** @internal */
+export const MAX_TIME_GRID_COUNT = 12;
+
+/** @internal */
+export const DEFAULT_LOCALE = 'en-US';
+
+/** @internal */
+export const MINIMUM_TICK_PIXEL_DISTANCE = 24;
+
+/** @internal */
+export const notTooDense =
+  (domainFrom: number, domainTo: number, intervalWidth: number, cartesianWidth: number, maxTickCount: number) =>
+  ({
+    unit,
+    unitMultiplier,
+    minimumTickPixelDistance,
+  }: Pick<AxisLayer<Interval>, 'unit' | 'unitMultiplier' | 'minimumTickPixelDistance'>) => {
+    const domainSize = domainTo - domainFrom;
+    const partitionIntervalWidth = unitIntervalWidth[unit] * unitMultiplier;
+    const maximumTickCount = Math.min(maxTickCount, cartesianWidth / minimumTickPixelDistance);
+    const tickCountConstraint = domainSize / maximumTickCount;
+    const spacingConstraint = intervalWidth / WIDTH_FUDGE;
+    return partitionIntervalWidth >= Math.max(tickCountConstraint, spacingConstraint); // heed both constraints
+  };
 
 /** @internal */
 export function multilayerAxisEntry(
   xDomain: XDomain,
   extendByOneBin: boolean,
   range: [number, number],
-  timeAxisLayerCount: any,
-  scale: Scale<string | number> | ScaleContinuous, // fixme it's only the latter for now
+  timeAxisLayerCount: number,
+  scale: ScaleContinuous,
   getMeasuredTicks: GetMeasuredTicks,
-) {
-  const rasterSelector = rasters({ minimumTickPixelDistance: 24, locale: 'en-US' }, xDomain.timeZone);
+): Projection {
+  const rasterSelector = continuousTimeRasters(
+    { minimumTickPixelDistance: MINIMUM_TICK_PIXEL_DISTANCE, locale: DEFAULT_LOCALE },
+    xDomain.timeZone,
+  );
   const domainValues = xDomain.domain; // todo consider a property or object type rename
   const domainFromS = Number(domainValues[0]) / 1000; // todo rely on a type guard or check rather than conversion
-  const binWidth = xDomain.minInterval;
-  const domainExtension = extendByOneBin ? binWidth : 0;
+  const binWidthMs = xDomain.minInterval;
+  const binWidth = binWidthMs / 1000; // seconds to milliseconds
+  const domainExtension = extendByOneBin ? binWidthMs : 0;
   const domainToS = ((Number(domainValues[domainValues.length - 1]) || NaN) + domainExtension) / 1000;
-  const layers = rasterSelector(notTooDense(domainFromS, domainToS, binWidth, Math.abs(range[1] - range[0])));
+  const cartesianWidth = Math.abs(range[1] - range[0]);
+  const layers = rasterSelector(notTooDense(domainFromS, domainToS, binWidth, cartesianWidth, MAX_TIME_TICK_COUNT));
   let layerIndex = -1;
   const fillLayerTimeslip = (
     layer: number,
@@ -63,19 +76,23 @@ export function multilayerAxisEntry(
       fallbackAskedTickCount: NaN,
     };
   };
-  return layers.reduce(
-    (combinedEntry: { ticks: AxisTick[] }, l: TimeRaster<TimeBin>, detailedLayerIndex) => {
+
+  const binStartsFrom = domainFromS - binWidth;
+  const binStartsTo = domainToS + binWidth;
+
+  return layers.reduce<Projection>(
+    (combinedEntry, l, detailedLayerIndex) => {
       if (l.labeled) layerIndex++; // we want three (or however many) _labeled_ axis layers; others are useful for minor ticks/gridlines, and for giving coarser structure eg. stronger gridline for every 6th hour of the day
       if (layerIndex >= timeAxisLayerCount) return combinedEntry;
-      const binWidthS = binWidth / 1000;
+      const timeTicks = [...l.intervals(binStartsFrom, binStartsTo)]
+        .filter((b) => b.supremum > domainFromS && b.minimum <= domainToS)
+        .map((b) => 1000 * b.minimum);
       const { entry } = fillLayerTimeslip(
         layerIndex,
         detailedLayerIndex,
-        [...l.binStarts(domainFromS - binWidthS, domainToS + binWidthS)]
-          .filter((b) => b.nextTimePointSec > domainFromS && b.timePointSec <= domainToS)
-          .map((b) => 1000 * b.timePointSec),
+        timeTicks,
         !l.labeled ? () => '' : layerIndex === timeAxisLayerCount - 1 ? l.detailedLabelFormat : l.minorTickLabelFormat,
-        notTooDense(domainFromS, domainToS, binWidth, Math.abs(range[1] - range[0]), MAX_TIME_GRID_COUNT)(l),
+        notTooDense(domainFromS, domainToS, binWidth, cartesianWidth, MAX_TIME_GRID_COUNT)(l),
       );
       const minLabelGap = 4;
 
@@ -85,8 +102,8 @@ export function multilayerAxisEntry(
       }
 
       return {
-        ...entry,
         ...combinedEntry,
+        ...entry,
         ticks: (combinedEntry.ticks || []).concat(
           entry.ticks.filter(
             (tick, i, a) =>
@@ -97,6 +114,16 @@ export function multilayerAxisEntry(
         ),
       };
     },
-    { ticks: [] }, // this should turn into a full Projection
+    {
+      ticks: [],
+      labelBox: {
+        maxLabelBboxWidth: 0,
+        maxLabelBboxHeight: 0,
+        maxLabelTextWidth: 0,
+        maxLabelTextHeight: 0,
+        isHidden: true,
+      },
+      scale,
+    },
   );
 }

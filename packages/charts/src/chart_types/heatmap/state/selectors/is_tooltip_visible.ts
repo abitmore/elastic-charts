@@ -6,19 +6,31 @@
  * Side Public License, v 1.
  */
 
-import { getTooltipType } from '../../../../specs';
 import { TooltipType } from '../../../../specs/constants';
+import { TooltipVisibility } from '../../../../state/chart_state';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
-import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_specs';
+import { getTooltipInteractionState } from '../../../../state/selectors/get_tooltip_interaction_state';
+import { getTooltipSpecSelector } from '../../../../state/selectors/get_tooltip_spec';
 import { getTooltipInfoSelector } from './tooltip';
 
 /** @internal */
 export const isTooltipVisibleSelector = createCustomCachedSelector(
-  [getSettingsSpecSelector, getTooltipInfoSelector],
-  (settingsSpec, tooltipInfo): boolean => {
-    if (getTooltipType(settingsSpec) === TooltipType.None) {
-      return false;
+  [getTooltipSpecSelector, getTooltipInfoSelector, getTooltipInteractionState],
+  ({ type }, tooltipInfo, { pinned }): TooltipVisibility => {
+    if (type === TooltipType.None) {
+      return {
+        visible: false,
+        isExternal: false,
+        displayOnly: false,
+        isPinnable: false,
+      };
     }
-    return tooltipInfo.values.length > 0;
+
+    return {
+      visible: tooltipInfo.values.length > 0 || pinned,
+      displayOnly: tooltipInfo.values.every(({ displayOnly }) => displayOnly),
+      isExternal: false,
+      isPinnable: tooltipInfo.values.length > 0,
+    };
   },
 );

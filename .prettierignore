@@ -8,3 +8,6 @@
 **/dist/
 coverage/
 **/tmp/
+
+packages/charts/src/_reset.scss
+packages/charts/src/mocks/hierarchical/**/*.json

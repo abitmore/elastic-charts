@@ -23,7 +23,7 @@ function significantDigitCount(d: number): number {
   while (n !== 0 && n % 10 === 0) {
     n /= 10;
   }
-  return Math.floor(Math.log(n) / Math.LN10) + 1;
+  return Math.floor(Math.log10(n)) + 1;
 }
 
 /** @internal */
@@ -47,7 +47,14 @@ export function sumValueGetter(node: ShapeTreeNode): number {
 export const MODEL_KEY = 'parent';
 
 /** @public */
-export function percentValueGetter(node: ShapeTreeNode): number {
+export function percentValueGetter(node: {
+  [AGGREGATE_KEY]: number;
+  [MODEL_KEY]: {
+    [STATISTICS_KEY]: {
+      globalAggregate: number;
+    };
+  };
+}): number {
   return (100 * node[AGGREGATE_KEY]) / node[MODEL_KEY][STATISTICS_KEY].globalAggregate;
 }
 

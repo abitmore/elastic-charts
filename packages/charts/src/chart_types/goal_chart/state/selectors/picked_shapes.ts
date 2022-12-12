@@ -8,15 +8,11 @@
 
 import { Rectangle } from '../../../../common/geometry';
 import { LayerValue } from '../../../../specs';
-import { GlobalChartState } from '../../../../state/chart_state';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
 import { BulletViewModel } from '../../layout/types/viewmodel_types';
 import { initialBoundingBox, Mark } from '../../layout/viewmodel/geoms';
+import { getActivePointerPosition } from './../../../../state/selectors/get_active_pointer_position';
 import { geometries, getPrimitiveGeoms } from './geometries';
-
-function getCurrentPointerPosition(state: GlobalChartState) {
-  return state.interactions.pointer.current.position;
-}
 
 function fullBoundingBox(ctx: CanvasRenderingContext2D | null, geoms: Mark[]) {
   const box = initialBoundingBox();
@@ -34,18 +30,15 @@ function fullBoundingBox(ctx: CanvasRenderingContext2D | null, geoms: Mark[]) {
 }
 
 /** @internal */
-export const getCaptureBoundingBox = createCustomCachedSelector(
-  [getPrimitiveGeoms],
-  (geoms): Rectangle => {
-    const textMeasurer = document.createElement('canvas');
-    const ctx = textMeasurer.getContext('2d');
-    return fullBoundingBox(ctx, geoms);
-  },
-);
+export const getCaptureBoundingBox = createCustomCachedSelector([getPrimitiveGeoms], (geoms): Rectangle => {
+  const textMeasurer = document.createElement('canvas');
+  const ctx = textMeasurer.getContext('2d');
+  return fullBoundingBox(ctx, geoms);
+});
 
 /** @internal */
 export const getPickedShapes = createCustomCachedSelector(
-  [geometries, getCurrentPointerPosition, getCaptureBoundingBox],
+  [geometries, getActivePointerPosition, getCaptureBoundingBox],
   (geoms, pointerPosition, capture): BulletViewModel[] => {
     const picker = geoms.pickQuads;
     const { chartCenter } = geoms;

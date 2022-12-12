@@ -30,3 +30,16 @@ export * from './xy_chart/utils/specs';
 export { Partition } from './partition_chart/specs';
 
 export { Heatmap, HeatmapSpec, RasterTimeScale, TimeScale, LinearScale, OrdinalScale } from './heatmap/specs';
+
+export {
+  Metric,
+  MetricSpecProps,
+  MetricSpec,
+  MetricBase,
+  MetricWText,
+  MetricWNumber,
+  MetricWProgress,
+  MetricWTrend,
+  MetricTrendShape,
+  MetricDatum,
+} from './metric/specs';

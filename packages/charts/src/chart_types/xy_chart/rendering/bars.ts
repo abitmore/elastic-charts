@@ -7,7 +7,7 @@
  */
 
 import { Color } from '../../../common/colors';
-import { Scale } from '../../../scales';
+import { ScaleBand, ScaleContinuous } from '../../../scales';
 import { ScaleType } from '../../../scales/constants';
 import { TextMeasure } from '../../../utils/bbox/canvas_text_bbox_calculator';
 import { clamp, mergePartial } from '../../../utils/common';
@@ -15,7 +15,12 @@ import { Dimensions } from '../../../utils/dimensions';
 import { BandedAccessorType, BarGeometry } from '../../../utils/geometry';
 import { BarSeriesStyle, DisplayValueStyle } from '../../../utils/themes/theme';
 import { IndexedGeometryMap } from '../utils/indexed_geometry_map';
-import { DataSeries, DataSeriesDatum, XYChartSeriesIdentifier } from '../utils/series';
+import {
+  DataSeries,
+  DataSeriesDatum,
+  getSeriesIdentifierFromDataSeries,
+  XYChartSeriesIdentifier,
+} from '../utils/series';
 import { BarStyleAccessor, DisplayValueSpec, LabelOverflowConstraint, StackMode } from '../utils/specs';
 import { getDatumYValue } from './points';
 
@@ -32,8 +37,8 @@ export function renderBars(
   measureText: TextMeasure,
   orderIndex: number,
   dataSeries: DataSeries,
-  xScale: Scale<number | string>,
-  yScale: Scale<number>,
+  xScale: ScaleContinuous | ScaleBand,
+  yScale: ScaleContinuous,
   panel: Dimensions,
   chartRotation: number,
   minBarHeight: number,
@@ -70,15 +75,7 @@ export function renderBars(
     const finiteY = Number.isNaN(y0Scaled + rawY) ? 0 : rawY;
     const y = isUpsideDown ? finiteY - height + heightExtension : finiteY - heightExtension;
 
-    const seriesIdentifier: XYChartSeriesIdentifier = {
-      key: dataSeries.key,
-      specId: dataSeries.specId,
-      yAccessor: dataSeries.yAccessor,
-      splitAccessors: dataSeries.splitAccessors,
-      seriesKeys: dataSeries.seriesKeys,
-      smHorizontalAccessorValue: dataSeries.smHorizontalAccessorValue,
-      smVerticalAccessorValue: dataSeries.smVerticalAccessorValue,
-    };
+    const seriesIdentifier: XYChartSeriesIdentifier = getSeriesIdentifierFromDataSeries(dataSeries);
 
     const seriesStyle = getBarStyleOverrides(datum, seriesIdentifier, sharedSeriesStyle, styleAccessor);
 

@@ -11,7 +11,7 @@ import { Selector } from 'react-redux';
 import { ChartType } from '../../..';
 import { GlobalChartState } from '../../../../state/chart_state';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
-import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_specs';
+import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_spec';
 import { Dimensions } from '../../../../utils/dimensions';
 import { computeChartDimensionsSelector } from './compute_chart_dimensions';
 
@@ -43,9 +43,7 @@ export function createOnProjectionAreaCaller(): (state: GlobalChartState) => voi
             isDiff(prevProps.projection, nextProps.projection) ||
             isDiff(nextProps.parent, nextProps.parent);
           if (onProjectionAreaChange && areDifferent) {
-            requestAnimationFrame(() => {
-              onProjectionAreaChange(nextProps);
-            });
+            onProjectionAreaChange(nextProps);
           }
           prevProps = nextProps;
         },

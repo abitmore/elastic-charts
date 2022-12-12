@@ -38,6 +38,10 @@ const hexStringToTuple = (s: string) => [
   String(parseInt(s.slice(5, 7), 16)),
 ];
 
+export const wait = <T extends () => any>(n: number, cb: T): Promise<ReturnType<T>> => {
+  return new Promise<ReturnType<T>>((resolve) => setTimeout(resolve, n)).then(cb);
+};
+
 export const plasma18 = [
   '#0d0887',
   '#2f0596',
@@ -217,8 +221,10 @@ export const colorBrewerCategoricalStark9: RGBStrings = [
   'rgb(153,153,153)',
 ].map(rgbStringToTuple) as RGBStrings;
 
-export const discreteColor = (categoricalColors: RGBStrings, opacity = 1) => (i: number) =>
-  `rgba(${categoricalColors[i % categoricalColors.length].concat([opacity.toString()]).join(',')})`;
+export const discreteColor =
+  (categoricalColors: RGBStrings, opacity = 1) =>
+  (i: number) =>
+    `rgba(${categoricalColors[i % categoricalColors.length].concat([opacity.toString()]).join(',')})`;
 
 export const decreasingOpacityCET2 = (opacity: number) => (d: any, i: number, a: any[]) =>
   hueInterpolator(palettes.CET2s.map(([r, g, b]) => [r, g, b, opacity]))(i / (a.length + 1));

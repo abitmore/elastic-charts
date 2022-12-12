@@ -6,11 +6,11 @@
  * Side Public License, v 1.
  */
 
-import { getDistance } from '../../../utils/common';
+import { MarkBuffer } from '../../../specs';
+import { getDistance, isFiniteNumber } from '../../../utils/common';
 import { Delaunay, Bounds } from '../../../utils/d3-delaunay';
 import { IndexedGeometry, PointGeometry } from '../../../utils/geometry';
 import { Point } from '../../../utils/point';
-import { DEFAULT_HIGHLIGHT_PADDING } from '../rendering/constants';
 
 /** @internal */
 export type IndexedGeometrySpatialMapPoint = [number, number];
@@ -42,15 +42,17 @@ export class IndexedGeometrySpatialMap {
   set(points: PointGeometry[]) {
     this.maxRadius = Math.max(this.maxRadius, ...points.map(({ radius }) => radius));
     const { pointGeometries } = this;
-    points.forEach((p) => pointGeometries.push(p));
+    points.forEach((p) => {
+      if (isFiniteNumber(p.y)) pointGeometries.push(p);
+    });
     this.points.push(
       ...points.map<IndexedGeometrySpatialMapPoint>(({ x, y }) => {
         // TODO: handle coincident points better
         // This nonce is used to slightly offset every point such that each point
-        // has a unique poition in the index. This number is only used in the index.
+        // has a unique position in the index. This number is only used in the index.
         // The other option would be to find the point(s) near a Point and add logic
         // to account for multiple values in the pointGeometries array. This would be
-        // a very comutationally expensive approach having to repeat for every point.
+        // a very computationally expensive approach having to repeat for every point.
         const nonce = Math.random() * 0.000001;
         return [x + nonce, y];
       }),
@@ -62,7 +64,9 @@ export class IndexedGeometrySpatialMap {
     }
   }
 
-  triangulation = (bounds?: Bounds) => this.map?.voronoi(bounds);
+  triangulation(bounds?: Bounds) {
+    return this.map?.voronoi(bounds);
+  }
 
   getMergeData() {
     return [...this.pointGeometries];
@@ -72,7 +76,7 @@ export class IndexedGeometrySpatialMap {
     return this.pointGeometries.map(({ value: { x } }) => x);
   }
 
-  find(point: Point): IndexedGeometry[] {
+  find(point: Point, pointBuffer: MarkBuffer): IndexedGeometry[] {
     const elements = [];
     if (this.map !== null) {
       const index = this.map.find(point.x, point.y, this.searchStartIndex);
@@ -82,7 +86,7 @@ export class IndexedGeometrySpatialMap {
         // Set next starting search index for faster lookup
         this.searchStartIndex = index;
         elements.push(geometry);
-        this.getRadialNeighbors(index, point, new Set([index])).forEach((g) => elements.push(g));
+        this.getRadialNeighbors(index, point, new Set([index]), pointBuffer).forEach((g) => elements.push(g));
       }
     }
 
@@ -92,11 +96,13 @@ export class IndexedGeometrySpatialMap {
   /**
    * Gets surrounding points whose radius could be within the active cursor position
    *
-   * @param selectedIndex
-   * @param point
-   * @param visitedIndices
    */
-  private getRadialNeighbors(selectedIndex: number, point: Point, visitedIndices: Set<number>): IndexedGeometry[] {
+  private getRadialNeighbors(
+    selectedIndex: number,
+    point: Point,
+    visitedIndices: Set<number>,
+    pointBuffer: MarkBuffer,
+  ): IndexedGeometry[] {
     if (this.map === null) {
       return [];
     }
@@ -112,10 +118,10 @@ export class IndexedGeometrySpatialMap {
 
       if (geometry) {
         acc.push(geometry);
-
-        if (getDistance(geometry, point) < Math.min(this.maxRadius, DEFAULT_HIGHLIGHT_PADDING)) {
+        const radiusBuffer = typeof pointBuffer === 'number' ? pointBuffer : pointBuffer(geometry.radius);
+        if (getDistance(geometry, point) < Math.min(this.maxRadius, radiusBuffer)) {
           // Gets neighbors based on relation to maxRadius
-          this.getRadialNeighbors(i, point, visitedIndices).forEach((g) => acc.push(g));
+          this.getRadialNeighbors(i, point, visitedIndices, pointBuffer).forEach((g) => acc.push(g));
         }
       }
 

@@ -10,15 +10,7 @@ import { createStore, Store } from 'redux';
 
 import { Predicate } from '../../../../common/predicate';
 import { MockGlobalSpec, MockSeriesSpec } from '../../../../mocks/specs';
-import {
-  SettingsSpec,
-  XYChartElementEvent,
-  PartitionElementEvent,
-  HeatmapElementEvent,
-  GroupBySpec,
-  SmallMultiplesSpec,
-  WordCloudElementEvent,
-} from '../../../../specs';
+import { SettingsSpec, GroupBySpec, SmallMultiplesSpec } from '../../../../specs';
 import { updateParentDimensions } from '../../../../state/actions/chart_settings';
 import { onMouseDown, onMouseUp, onPointerMove } from '../../../../state/actions/mouse';
 import { upsertSpec, specParsed } from '../../../../state/actions/specs';
@@ -36,6 +28,7 @@ function initStore() {
 
 describe('Picked shapes selector', () => {
   function addSeries(store: Store<GlobalChartState>, spec: PartitionSpec, settings?: Partial<SettingsSpec>) {
+    // @ts-ignore - nesting limitation
     store.dispatch(upsertSpec(MockGlobalSpec.settings(settings)));
     store.dispatch(upsertSpec(spec));
     store.dispatch(specParsed());
@@ -92,10 +85,7 @@ describe('Picked shapes selector', () => {
     expect(sunburstGeometries.quadViewModel).toHaveLength(6);
   });
   test('treemap check picked geometries', () => {
-    const onClickListener = jest.fn<
-      undefined,
-      Array<XYChartElementEvent | PartitionElementEvent | HeatmapElementEvent | WordCloudElementEvent>[]
-    >((): undefined => undefined);
+    const onClickListener = jest.fn();
     addSeries(store, treemapSpec, {
       onElementClick: onClickListener,
     });
@@ -109,8 +99,8 @@ describe('Picked shapes selector', () => {
     store.dispatch(onPointerMove({ x: 200, y: 200 }, 0));
     store.dispatch(onMouseDown({ x: 200, y: 200 }, 1));
     store.dispatch(onMouseUp({ x: 200, y: 200 }, 2));
-    expect(onClickListener).toBeCalled();
-    expect(onClickListener.mock.calls[0][0]).toEqual([
+    expect(onClickListener).toHaveBeenCalled();
+    expect(onClickListener).toHaveBeenCalledWith([
       [
         [
           {
@@ -147,10 +137,7 @@ describe('Picked shapes selector', () => {
     ]);
   });
   test('small multiples pie chart check picked geometries', () => {
-    const onClickListener = jest.fn<
-      undefined,
-      Array<XYChartElementEvent | PartitionElementEvent | HeatmapElementEvent | WordCloudElementEvent>[]
-    >((): undefined => undefined);
+    const onClickListener = jest.fn();
     addSmallMultiplesSeries(
       store,
       {
@@ -191,8 +178,8 @@ describe('Picked shapes selector', () => {
     store.dispatch(onPointerMove({ x, y }, 0));
     store.dispatch(onMouseDown({ x, y }, 1));
     store.dispatch(onMouseUp({ x, y }, 2));
-    expect(onClickListener).toBeCalled();
-    expect(onClickListener.mock.calls[0][0]).toEqual([
+    expect(onClickListener).toHaveBeenCalled();
+    expect(onClickListener).toHaveBeenCalledWith([
       [
         [
           {
@@ -216,10 +203,7 @@ describe('Picked shapes selector', () => {
     ]);
   });
   test('sunburst check picked geometries', () => {
-    const onClickListener = jest.fn<
-      undefined,
-      Array<XYChartElementEvent | PartitionElementEvent | HeatmapElementEvent | WordCloudElementEvent>[]
-    >((): undefined => undefined);
+    const onClickListener = jest.fn();
     addSeries(store, sunburstSpec, {
       onElementClick: onClickListener,
     });
@@ -233,8 +217,8 @@ describe('Picked shapes selector', () => {
     store.dispatch(onPointerMove({ x: 200, y: 200 }, 0));
     store.dispatch(onMouseDown({ x: 200, y: 200 }, 1));
     store.dispatch(onMouseUp({ x: 200, y: 200 }, 2));
-    expect(onClickListener).toBeCalled();
-    expect(onClickListener.mock.calls[0][0]).toEqual([
+    expect(onClickListener).toHaveBeenCalled();
+    expect(onClickListener).toHaveBeenCalledWith([
       [
         [
           {

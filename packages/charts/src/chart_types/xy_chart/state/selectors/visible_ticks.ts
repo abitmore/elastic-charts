@@ -6,11 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { Scale, ScaleContinuous } from '../../../../scales';
+import { ScaleBand, ScaleContinuous } from '../../../../scales';
 import { ScaleType } from '../../../../scales/constants';
+import { isContinuousScale } from '../../../../scales/types';
 import { AxisSpec, SettingsSpec } from '../../../../specs';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
-import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_specs';
+import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_spec';
 import { withTextMeasure } from '../../../../utils/bbox/canvas_text_bbox_calculator';
 import { isRTLString, Position, Rotation } from '../../../../utils/common';
 import { Size } from '../../../../utils/dimensions';
@@ -30,11 +31,11 @@ import { getBarPaddingsSelector } from './get_bar_paddings';
 import { isHistogramModeEnabledSelector } from './is_histogram_mode_enabled';
 
 /** @internal */
-export type Projection = { ticks: AxisTick[]; labelBox: TickLabelBounds; scale: Scale<string | number> };
+export type Projection = { ticks: AxisTick[]; labelBox: TickLabelBounds; scale: ScaleBand | ScaleContinuous };
 
 /** @internal */
 export type GetMeasuredTicks = (
-  scale: Scale<number | string>,
+  scale: ScaleBand | ScaleContinuous,
   ticks: (number | string)[],
   layer: number | undefined,
   detailedLayer: number,
@@ -54,7 +55,7 @@ function axisMinMax(axisPosition: Position, chartRotation: Rotation, { width, he
   return horizontal ? [flipped ? width : 0, flipped ? 0 : width] : [flipped ? 0 : height, flipped ? height : 0];
 }
 
-function getDirectionFn({ type }: Scale<number | string>): (label: string) => TextDirection {
+function getDirectionFn({ type }: ScaleBand | ScaleContinuous): (label: string) => TextDirection {
   return type === ScaleType.Ordinal
     ? (label) => (isRTLString(label) ? 'rtl' : 'ltr') // depends on label
     : () => 'ltr'; // always use ltr
@@ -63,7 +64,7 @@ function getDirectionFn({ type }: Scale<number | string>): (label: string) => Te
 /** @internal */
 export function generateTicks(
   axisSpec: AxisSpec,
-  scale: Scale<number | string>,
+  scale: ScaleBand | ScaleContinuous,
   ticks: (number | string)[],
   offset: number,
   labelFormatter: AxisLabelFormatter,
@@ -72,9 +73,9 @@ export function generateTicks(
   showGrid: boolean,
 ): AxisTick[] {
   const getDirection = getDirectionFn(scale);
+  const isContinuous = isContinuousScale(scale);
   return ticks.map<AxisTick>((value) => {
-    const domainClampedValue =
-      typeof value === 'number' && typeof scale.domain[0] === 'number' ? Math.max(scale.domain[0], value) : value;
+    const domainClampedValue = isContinuous && typeof value === 'number' ? Math.max(value, scale.domain[0]) : value;
     const label = labelFormatter(value);
     return {
       value,
@@ -96,7 +97,7 @@ function getVisibleTicks(
   totalBarsInCluster: number,
   labelFormatter: AxisLabelFormatter,
   rotationOffset: number,
-  scale: Scale<number | string>,
+  scale: ScaleBand | ScaleContinuous,
   enableHistogramMode: boolean,
   layer: number | undefined,
   detailedLayer: number,
@@ -171,7 +172,7 @@ function getVisibleTicks(
 }
 
 function getVisibleTickSet(
-  scale: Scale<number | string>,
+  scale: ScaleBand | ScaleContinuous,
   labelBox: TickLabelBounds,
   { rotation: chartRotation }: Pick<SettingsSpec, 'rotation'>,
   axisSpec: AxisSpec,
@@ -239,7 +240,7 @@ function getVisibleTickSets(
         const isMultilayerTimeAxis = domain?.type === ScaleType.Time && timeAxisLayerCount > 0;
 
         const getMeasuredTicks = (
-          scale: Scale<number | string>,
+          scale: ScaleBand | ScaleContinuous,
           ticks: (number | string)[],
           layer: number | undefined,
           detailedLayer: number,
@@ -327,7 +328,7 @@ function getVisibleTickSets(
 
         if (isMultilayerTimeAxis) {
           const scale = getScale(0); // the scale is only needed for its non-tick props like step, bandwidth, ...
-          if (!scale) throw new Error('Scale generation for the multilayer axis failed');
+          if (!scale || !isContinuousScale(scale)) throw new Error('Scale generation for the multilayer axis failed');
           return acc.set(
             axisId,
             multilayerAxisEntry(

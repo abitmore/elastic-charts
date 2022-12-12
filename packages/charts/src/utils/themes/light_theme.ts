@@ -221,6 +221,17 @@ export const LIGHT_THEME: Theme = {
   goal: {
     minFontSize: 8,
     maxFontSize: 64,
+    maxCircularSize: 360,
+    maxBulletSize: 500,
+    barThicknessMinSizeRatio: 1 / 10,
+    baselineArcThickness: 32,
+    baselineBarThickness: 32,
+    marginRatio: 0.05,
+    maxTickFontSize: 24,
+    maxLabelFontSize: 32,
+    maxCentralFontSize: 38,
+    arcBoxSamplePitch: (5 / 360) * TAU,
+    capturePad: 16,
     tickLabel: {
       fontStyle: 'normal',
       fontFamily: 'sans-serif',
@@ -327,16 +338,14 @@ export const LIGHT_THEME: Theme = {
     },
     xAxisLabel: {
       visible: true,
-      width: 'auto',
       fontSize: 12,
       fontFamily: 'Sans-Serif',
       fontStyle: 'normal',
       textColor: Colors.Black.keyword,
       fontVariant: 'normal',
       fontWeight: 'normal',
-      align: 'center',
-      baseline: 'middle',
       padding: { top: 5, bottom: 5, left: 5, right: 5 },
+      rotation: 0,
     },
     yAxisLabel: {
       visible: true,
@@ -347,7 +356,6 @@ export const LIGHT_THEME: Theme = {
       textColor: Colors.Black.keyword,
       fontVariant: 'normal',
       fontWeight: 'normal',
-      baseline: 'middle',
       padding: { top: 5, bottom: 5, left: 5, right: 5 },
     },
     grid: {
@@ -384,6 +392,42 @@ export const LIGHT_THEME: Theme = {
         strokeWidth: 1,
         stroke: 'gray',
       },
+    },
+  },
+  metric: {
+    text: {
+      lightColor: '#E0E5EE',
+      darkColor: '#343741',
+    },
+    border: '#EDF0F5',
+    barBackground: '#EDF0F5',
+    background: '#FFFFFF',
+    nonFiniteText: 'N/A',
+    minHeight: 64,
+  },
+  tooltip: {
+    maxWidth: 260,
+    maxTableHeight: 120,
+    defaultDotColor: Colors.Black.keyword,
+  },
+  flamegraph: {
+    navigation: {
+      textColor: 'rgb(52, 55, 65)',
+      buttonTextColor: 'rgb(0, 97, 166)',
+      buttonDisabledTextColor: 'rgb(162, 171, 186)',
+      buttonBackgroundColor: 'rgb(204, 228, 245)',
+      buttonDisabledBackgroundColor: 'rgba(211, 218, 230, 0.15)',
+    },
+    scrollbarThumb: 'rgb(52, 55, 65)',
+    scrollbarTrack: 'rgb(211, 218, 230)',
+  },
+  highlighter: {
+    point: {
+      opacity: 1,
+      fill: ColorVariant.None,
+      stroke: ColorVariant.Series,
+      strokeWidth: 4,
+      radius: 10,
     },
   },
 };

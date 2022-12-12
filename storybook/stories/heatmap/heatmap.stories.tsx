@@ -15,3 +15,5 @@ export { Example as time } from './3_time.story';
 export { Example as categorical } from './2_categorical.story';
 export { Example as timeSnap } from './4_test_time_snap.story';
 export { Example as theming } from './5_theming.story';
+export { Example as labelRotation } from './6_label_rotation.story';
+export { Example as sorting } from './7_sorting.story';

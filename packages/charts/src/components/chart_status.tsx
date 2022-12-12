@@ -13,7 +13,7 @@ import { RenderChangeListener } from '../specs';
 import { GlobalChartState } from '../state/chart_state';
 import { globalSelectorCache } from '../state/create_selector';
 import { getDebugStateSelector } from '../state/selectors/get_debug_state';
-import { getSettingsSpecSelector } from '../state/selectors/get_settings_specs';
+import { getSettingsSpecSelector } from '../state/selectors/get_settings_spec';
 import { DebugState } from '../state/types';
 
 interface ChartStatusStateProps {
@@ -38,12 +38,7 @@ class ChartStatusComponent extends React.Component<ChartStatusStateProps> {
   }
 
   dispatchRenderChange = () => {
-    const { onRenderChange, rendered } = this.props;
-    if (onRenderChange) {
-      window.requestAnimationFrame(() => {
-        onRenderChange(rendered);
-      });
-    }
+    this.props.onRenderChange?.(this.props.rendered);
   };
 
   render() {

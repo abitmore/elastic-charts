@@ -16,9 +16,12 @@ export const ChartType = Object.freeze({
   Global: 'global' as const,
   Goal: 'goal' as const,
   Partition: 'partition' as const,
+  Flame: 'flame' as const,
+  Timeslip: 'timeslip' as const,
   XYAxis: 'xy_axis' as const,
   Heatmap: 'heatmap' as const,
   Wordcloud: 'wordcloud' as const,
+  Metric: 'metric' as const,
 });
 /** @public */
 export type ChartType = $Values<typeof ChartType>;

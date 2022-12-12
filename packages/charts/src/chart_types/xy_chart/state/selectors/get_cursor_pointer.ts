@@ -6,10 +6,12 @@
  * Side Public License, v 1.
  */
 
+import { CSSProperties } from 'react';
+
 import { DEFAULT_CSS_CURSOR } from '../../../../common/constants';
 import { GlobalChartState } from '../../../../state/chart_state';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
-import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_specs';
+import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_spec';
 import { computeChartDimensionsSelector } from './compute_chart_dimensions';
 import { getAnnotationTooltipStateSelector } from './get_annotation_tooltip_state';
 import { getProjectedScaledValues } from './get_projected_scaled_values';
@@ -17,6 +19,8 @@ import { getHighlightedGeomsSelector } from './get_tooltip_values_highlighted_ge
 import { isBrushAvailableSelector } from './is_brush_available';
 
 const getCurrentPointerPositionSelector = (state: GlobalChartState) => state.interactions.pointer.current.position;
+const getTooltipInteractionStateSelector = (state: GlobalChartState) => state.interactions.tooltip;
+const getIsDragging = (state: GlobalChartState) => state.interactions.pointer.dragging;
 
 /** @internal */
 export const getPointerCursorSelector = createCustomCachedSelector(
@@ -28,6 +32,8 @@ export const getPointerCursorSelector = createCustomCachedSelector(
     computeChartDimensionsSelector,
     isBrushAvailableSelector,
     getAnnotationTooltipStateSelector,
+    getTooltipInteractionStateSelector,
+    getIsDragging,
   ],
   (
     highlightedGeometries,
@@ -37,11 +43,16 @@ export const getPointerCursorSelector = createCustomCachedSelector(
     { chartDimensions },
     isBrushAvailable,
     annotationTooltipState,
-  ): string => {
+    tooltipState,
+    isDragging,
+  ): CSSProperties['cursor'] => {
+    if (tooltipState.pinned) return;
     const { x, y } = currentPointerPosition;
     // get positions relative to chart
     const xPos = x - chartDimensions.left;
     const yPos = y - chartDimensions.top;
+
+    if (isBrushAvailable && isDragging) return 'crosshair';
 
     // limit cursorPosition to chartDimensions
     if (xPos < 0 || xPos >= chartDimensions.width || yPos < 0 || yPos >= chartDimensions.height) {

@@ -9,13 +9,13 @@
 import { area } from 'd3-shape';
 
 import { Color } from '../../../common/colors';
-import { Scale } from '../../../scales';
+import { ScaleBand, ScaleContinuous } from '../../../scales';
 import { CurveType, getCurveFactory } from '../../../utils/curves';
 import { Dimensions } from '../../../utils/dimensions';
 import { AreaGeometry } from '../../../utils/geometry';
 import { AreaSeriesStyle } from '../../../utils/themes/theme';
 import { IndexedGeometryMap } from '../utils/indexed_geometry_map';
-import { DataSeries, DataSeriesDatum } from '../utils/series';
+import { DataSeries, DataSeriesDatum, getSeriesIdentifierFromDataSeries } from '../utils/series';
 import { PointStyleAccessor } from '../utils/specs';
 import { renderPoints } from './points';
 import {
@@ -31,8 +31,8 @@ import {
 export function renderArea(
   shift: number,
   dataSeries: DataSeries,
-  xScale: Scale<number | string>,
-  yScale: Scale<number>,
+  xScale: ScaleBand | ScaleContinuous,
+  yScale: ScaleContinuous,
   panel: Dimensions,
   color: Color,
   curve: CurveType,
@@ -53,7 +53,7 @@ export function renderArea(
   const y1DatumAccessor = getYDatumValueFn();
   const y0DatumAccessor = getYDatumValueFn('y0');
   const pathGenerator = area<DataSeriesDatum>()
-    .x(({ x }) => (xScale.scale(x) ?? NaN) - xScaleOffset)
+    .x(({ x }) => xScale.scale(x) - xScaleOffset)
     .y1(y1Fn)
     .y0(y0Fn)
     .defined((datum) => {
@@ -93,15 +93,7 @@ export function renderArea(
       y: 0,
       x: shift,
     },
-    seriesIdentifier: {
-      key: dataSeries.key,
-      specId: dataSeries.specId,
-      yAccessor: dataSeries.yAccessor,
-      splitAccessors: dataSeries.splitAccessors,
-      seriesKeys: dataSeries.seriesKeys,
-      smHorizontalAccessorValue: dataSeries.smHorizontalAccessorValue,
-      smVerticalAccessorValue: dataSeries.smVerticalAccessorValue,
-    },
+    seriesIdentifier: getSeriesIdentifierFromDataSeries(dataSeries),
     style,
     isStacked,
     clippedRanges,

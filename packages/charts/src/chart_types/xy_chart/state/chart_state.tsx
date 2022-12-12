@@ -12,7 +12,7 @@ import { ChartType } from '../..';
 import { LegendItemExtraValues } from '../../../common/legend';
 import { SeriesKey } from '../../../common/series_id';
 import { BrushTool } from '../../../components/brush/brush';
-import { Tooltip } from '../../../components/tooltip';
+import { Tooltip } from '../../../components/tooltip/tooltip';
 import { InternalChartState, GlobalChartState, BackwardRef } from '../../../state/chart_state';
 import { getChartContainerDimensionsSelector } from '../../../state/selectors/get_chart_container_dimensions';
 import { InitStatus } from '../../../state/selectors/get_internal_is_intialized';
@@ -29,10 +29,10 @@ import { getBrushAreaSelector } from './selectors/get_brush_area';
 import { getChartTypeDescriptionSelector } from './selectors/get_chart_type_description';
 import { getPointerCursorSelector } from './selectors/get_cursor_pointer';
 import { getDebugStateSelector } from './selectors/get_debug_state';
-import { getHighlightedValuesSelector } from './selectors/get_highlighted_values';
+import { getLegendItemExtraValuesSelector } from './selectors/get_legend_item_extra_values';
 import { getLegendItemsLabelsSelector } from './selectors/get_legend_items_labels';
 import { getSeriesSpecsSelector } from './selectors/get_specs';
-import { getTooltipAnchorPositionSelector } from './selectors/get_tooltip_position';
+import { getTooltipAnchorPositionSelector } from './selectors/get_tooltip_anchor_position';
 import { getTooltipInfoSelector } from './selectors/get_tooltip_values_highlighted_geoms';
 import { isBrushAvailableSelector } from './selectors/is_brush_available';
 import { isBrushingSelector } from './selectors/is_brushing';
@@ -111,7 +111,7 @@ export class XYAxisChartState implements InternalChartState {
   }
 
   getLegendExtraValues(globalState: GlobalChartState): Map<SeriesKey, LegendItemExtraValues> {
-    return getHighlightedValuesSelector(globalState);
+    return getLegendItemExtraValuesSelector(globalState);
   }
 
   chartRenderer(containerRef: BackwardRef, forwardCanvasRef: RefObject<HTMLCanvasElement>) {

@@ -4,14 +4,20 @@
 
 ```ts
 
+/// <reference types="react" />
+
+import { $Keys } from 'utility-types';
 import { $Values } from 'utility-types';
 import { ComponentProps } from 'react';
 import { ComponentType } from 'react';
+import { CSSProperties } from 'react';
 import { FC } from 'react';
 import { LegacyRef } from 'react';
 import { OptionalKeys } from 'utility-types';
+import { PropsWithChildren as PropsWithChildren_2 } from 'react';
 import { default as React_2 } from 'react';
 import { ReactChild } from 'react';
+import { ReactElement } from 'react';
 import { ReactNode } from 'react';
 import { RequiredKeys } from 'utility-types';
 
@@ -51,6 +57,39 @@ export interface AngleFromTo {
     x1: Radian;
 }
 
+// @public
+export type AnimatedValue = number;
+
+// @public (undocumented)
+export interface AnimationConfig<T extends string> {
+    // (undocumented)
+    options?: AnimationOptions;
+    // (undocumented)
+    trigger: T;
+}
+
+// @public (undocumented)
+export interface AnimationOptions {
+    delay?: TimeMs | AnimationSpeed;
+    duration?: TimeMs | AnimationSpeed;
+    enabled?: boolean;
+    initialValue?: AnimatedValue;
+    snapValues?: AnimatedValue[];
+    timeFunction?: TimeFunction;
+}
+
+// @public
+export const AnimationSpeed: Readonly<{
+    extraFast: 90;
+    fast: 150;
+    normal: 250;
+    slow: 350;
+    extraSlow: 500;
+}>;
+
+// @public (undocumented)
+export type AnimationSpeed = $Keys<typeof AnimationSpeed>;
+
 // @alpha (undocumented)
 export interface AnimKeyframe {
     // Warning: (ae-forgotten-export) The symbol "EasingFunction" needs to be exported by the entry point index.d.ts
@@ -60,6 +99,17 @@ export interface AnimKeyframe {
     // (undocumented)
     time: number;
 }
+
+// @public (undocumented)
+export type AnnotationAnimationConfig = AnimationConfig<AnnotationAnimationTrigger>;
+
+// @public (undocumented)
+export const AnnotationAnimationTrigger: Readonly<{
+    FadeOnFocusingOthers: "FadeOnFocusingOthers";
+}>;
+
+// @public (undocumented)
+export type AnnotationAnimationTrigger = $Values<typeof AnnotationAnimationTrigger>;
 
 // @public (undocumented)
 export type AnnotationClickListener = (annotations: {
@@ -179,7 +229,7 @@ export interface ArrayNode extends NodeDescriptor {
 }
 
 // @public
-export const Axis: FC<SFProps<AxisSpec, "chartType" | "specType", "position" | "groupId" | "hide" | "showOverlappingTicks" | "showOverlappingLabels" | "timeAxisLayerCount", "style" | "title" | "domain" | "integersOnly" | "ticks" | "tickFormat" | "gridLine" | "showGridLines" | "labelFormat" | "showDuplicatedTicks", "id">>;
+export const Axis: FC<SFProps<AxisSpec, "chartType" | "specType", "position" | "groupId" | "hide" | "showOverlappingTicks" | "showOverlappingLabels" | "timeAxisLayerCount", "style" | "title" | "domain" | "integersOnly" | "tickFormat" | "ticks" | "gridLine" | "showGridLines" | "labelFormat" | "showDuplicatedTicks", "id">>;
 
 // @public (undocumented)
 export type AxisId = string;
@@ -310,6 +360,7 @@ export type BarStyleOverride = RecursivePartial<BarSeriesStyle> | Color | null;
 
 // @public (undocumented)
 export interface BaseAnnotationSpec<T extends typeof AnnotationType.Rectangle | typeof AnnotationType.Line, AD extends RectAnnotationDatum | LineAnnotationDatum<D>, S extends RectAnnotationStyle | LineAnnotationStyle, D = never> extends Spec, AnnotationPortalSettings {
+    animations?: AnnotationAnimationConfig[];
     annotationType: T;
     // (undocumented)
     chartType: typeof ChartType.XYAxis;
@@ -318,7 +369,7 @@ export interface BaseAnnotationSpec<T extends typeof AnnotationType.Rectangle | 
     hideTooltips?: boolean;
     // (undocumented)
     specType: typeof SpecType.Annotation;
-    style?: Partial<S>;
+    style?: RecursivePartial<S>;
     zIndex?: number;
 }
 
@@ -472,9 +523,12 @@ export const ChartType: Readonly<{
     Global: "global";
     Goal: "goal";
     Partition: "partition";
+    Flame: "flame";
+    Timeslip: "timeslip";
     XYAxis: "xy_axis";
     Heatmap: "heatmap";
     Wordcloud: "wordcloud";
+    Metric: "metric";
 }>;
 
 // @public (undocumented)
@@ -505,6 +559,12 @@ export interface ColorConfig {
     vizColors: Color[];
 }
 
+// @public (undocumented)
+export type ColorStripCellProps = Omit<TooltipTableCellProps, 'children' | 'width'> & {
+    color?: string;
+    displayOnly?: boolean;
+};
+
 // @public
 export const ColorVariant: Readonly<{
     Series: "__use__series__color__";
@@ -516,6 +576,24 @@ export const ColorVariant: Readonly<{
 export type ColorVariant = $Values<typeof ColorVariant>;
 
 // @public
+export interface ColumnarViewModel {
+    // (undocumented)
+    color: Float32Array;
+    // (undocumented)
+    label: string[];
+    // (undocumented)
+    position0: Float32Array;
+    // (undocumented)
+    position1: Float32Array;
+    // (undocumented)
+    size0: Float32Array;
+    // (undocumented)
+    size1: Float32Array;
+    // (undocumented)
+    value: Float64Array;
+}
+
+// @public
 export type ComponentWithAnnotationDatum<D = any> = ComponentType<LineAnnotationDatum<D>>;
 
 // @public
@@ -523,6 +601,14 @@ export function computeRatioByGroups<T extends Record<string, unknown>>(data: T[
 
 // @public (undocumented)
 export type ContinuousDomain = [min: number, max: number];
+
+// @public
+export interface ControlReceiverCallbacks {
+    // (undocumented)
+    focusOnNode: (control: FlameNodeControl) => void;
+    // (undocumented)
+    resetFocus: (control: FlameGlobalControl) => void;
+}
 
 // @public (undocumented)
 export interface CrosshairStyle {
@@ -559,7 +645,20 @@ export type CustomAnnotationTooltip = ComponentType<{
 }> | null;
 
 // @public
-export type CustomTooltip = ComponentType<TooltipInfo>;
+export type CustomTooltip<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> = ComponentType<CustomTooltipProps<D, SI>>;
+
+// @public
+export interface CustomTooltipProps<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> extends TooltipInfo<D, SI> {
+    backgroundColor: string;
+    // (undocumented)
+    dir: 'ltr' | 'rtl';
+    // (undocumented)
+    headerFormatter?: TooltipValueFormatter<D, SI>;
+    pinned: boolean;
+    selected: TooltipValue<D, SI>[];
+    setSelection: (items: TooltipValue<D, SI>[]) => void;
+    toggleSelected: (item: TooltipValue<D, SI>) => void;
+}
 
 // @public (undocumented)
 export type CustomXDomain = (DomainRange & Pick<LogScaleOptions, 'logBase'>) | OrdinalDomain;
@@ -753,10 +852,13 @@ export const DEFAULT_GLOBAL_ID = "__global__";
 // @public (undocumented)
 export const DEFAULT_SETTINGS_SPEC: SettingsSpec;
 
-// @public
+// @public @deprecated
 export const DEFAULT_TOOLTIP_SNAP = true;
 
-// @public
+// @public (undocumented)
+export const DEFAULT_TOOLTIP_SPEC: TooltipSpec;
+
+// @public @deprecated
 export const DEFAULT_TOOLTIP_TYPE: "vertical";
 
 // @public (undocumented)
@@ -840,10 +942,10 @@ export interface DomainRange {
 }
 
 // @public (undocumented)
-export type ElementClickListener = (elements: Array<XYChartElementEvent | PartitionElementEvent | HeatmapElementEvent | WordCloudElementEvent>) => void;
+export type ElementClickListener = (elements: Array<XYChartElementEvent | PartitionElementEvent | FlameElementEvent | HeatmapElementEvent | WordCloudElementEvent | MetricElementEvent>) => void;
 
 // @public (undocumented)
-export type ElementOverListener = (elements: Array<XYChartElementEvent | PartitionElementEvent | HeatmapElementEvent | WordCloudElementEvent>) => void;
+export type ElementOverListener = (elements: Array<XYChartElementEvent | PartitionElementEvent | FlameElementEvent | HeatmapElementEvent | WordCloudElementEvent | MetricElementEvent>) => void;
 
 // @public (undocumented)
 export const entryKey: ([key]: ArrayEntry) => string;
@@ -851,7 +953,7 @@ export const entryKey: ([key]: ArrayEntry) => string;
 // @public (undocumented)
 export const entryValue: ([, value]: ArrayEntry) => ArrayNode;
 
-// @public (undocumented)
+// @public
 export interface ESCalendarInterval {
     // (undocumented)
     type: 'calendar';
@@ -861,10 +963,10 @@ export interface ESCalendarInterval {
     value: number;
 }
 
-// @public (undocumented)
+// @public
 export type ESCalendarIntervalUnit = 'minute' | 'm' | 'hour' | 'h' | 'day' | 'd' | 'week' | 'w' | 'month' | 'M' | 'quarter' | 'q' | 'year' | 'y';
 
-// @public (undocumented)
+// @public
 export interface ESFixedInterval {
     // (undocumented)
     type: 'fixed';
@@ -874,7 +976,7 @@ export interface ESFixedInterval {
     value: number;
 }
 
-// @public (undocumented)
+// @public
 export type ESFixedIntervalUnit = 'ms' | 's' | 'm' | 'h' | 'd';
 
 // @alpha
@@ -921,6 +1023,57 @@ export type FitConfig = {
     endValue?: number | 'nearest';
 };
 
+// @public
+export const Flame: <D extends BaseDatum = any>(props: SFProps<FlameSpec<D>, "chartType" | "specType", "animation" | "valueAccessor" | "valueFormatter" | "valueGetter", never, "id" | "columnarData" | "controlProviderCallback">) => null;
+
+// @public (undocumented)
+export type FlameElementEvent = FlameLayerValue;
+
+// @public
+export type FlameGlobalControl = () => void;
+
+// @alpha (undocumented)
+export interface FlamegraphStyle {
+    // (undocumented)
+    navigation: {
+        textColor: Color;
+        buttonTextColor: Color;
+        buttonDisabledTextColor: Color;
+        buttonBackgroundColor: Color;
+        buttonDisabledBackgroundColor: Color;
+    };
+    // (undocumented)
+    scrollbarThumb: Color;
+    // (undocumented)
+    scrollbarTrack: Color;
+}
+
+// @public (undocumented)
+export interface FlameLayerValue {
+    vmIndex: number;
+}
+
+// @public
+export type FlameNodeControl = (nodeIndex: number) => void;
+
+// @public
+export interface FlameSpec<D extends BaseDatum = Datum> extends Spec, LegacyAnimationConfig {
+    // (undocumented)
+    chartType: typeof ChartType.Flame;
+    // (undocumented)
+    columnarData: ColumnarViewModel;
+    // (undocumented)
+    controlProviderCallback: Partial<ControlReceiverCallbacks>;
+    // (undocumented)
+    specType: typeof SpecType.Series;
+    // (undocumented)
+    valueAccessor: ValueAccessor<D>;
+    // (undocumented)
+    valueFormatter: ValueFormatter;
+    // (undocumented)
+    valueGetter: (datumIndex: number) => number;
+}
+
 // @public (undocumented)
 export const FONT_STYLES: readonly ["normal", "italic", "oblique", "inherit", "initial", "unset"];
 
@@ -950,11 +1103,25 @@ export interface GeometryValue {
     y: any;
 }
 
+// Warning: (ae-forgotten-export) The symbol "DataDemand" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "TimeslipDataRows" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type GetData = (dataDemand: DataDemand) => TimeslipDataRows;
+
 // @public (undocumented)
 export function getNodeName(node: ArrayNode): string;
 
+// Warning: (ae-forgotten-export) The symbol "buildProps" needs to be exported by the entry point index.d.ts
+//
 // @alpha
-export const Goal: FC<SFProps<GoalSpec, "chartType" | "specType", "base" | "actual" | "bands" | "ticks" | "bandFillColor" | "tickValueFormatter" | "labelMajor" | "labelMinor" | "centralMajor" | "centralMinor" | "angleStart" | "angleEnd" | "bandLabels" | "tooltipValueFormatter", "target", "id" | "subtype">>;
+export const Goal: (props: SFProps<GoalSpec, keyof (typeof buildProps)['overrides'], keyof (typeof buildProps)['defaults'], keyof (typeof buildProps)['optionals'], keyof (typeof buildProps)['requires']>) => null;
+
+// @alpha (undocumented)
+export interface GoalDomainRange {
+    max: number;
+    min: number;
+}
 
 // @alpha (undocumented)
 export type GoalLabelAccessor = LabelAccessor<BandFillColorAccessorInput>;
@@ -976,8 +1143,7 @@ export interface GoalSpec extends Spec {
     bandFillColor: BandFillColorAccessor;
     // (undocumented)
     bandLabels: string[];
-    // (undocumented)
-    bands: number[];
+    bands?: number | number[];
     // (undocumented)
     base: number;
     // (undocumented)
@@ -986,6 +1152,7 @@ export interface GoalSpec extends Spec {
     centralMinor: string | GoalLabelAccessor;
     // (undocumented)
     chartType: typeof ChartType.Goal;
+    domain: GoalDomainRange;
     // (undocumented)
     labelMajor: string | GoalLabelAccessor;
     // (undocumented)
@@ -998,8 +1165,7 @@ export interface GoalSpec extends Spec {
     subtype: GoalSubtype;
     // (undocumented)
     target?: number;
-    // (undocumented)
-    ticks: number[];
+    ticks?: number | number[];
     // (undocumented)
     tickValueFormatter: GoalLabelAccessor;
     // (undocumented)
@@ -1008,12 +1174,26 @@ export interface GoalSpec extends Spec {
 
 // @public (undocumented)
 export interface GoalStyles {
+    arcBoxSamplePitch: Radian;
+    barThicknessMinSizeRatio: number;
+    baselineArcThickness: number;
+    baselineBarThickness: number;
+    capturePad: number;
     // (undocumented)
     majorCenterLabel: Omit<TextStyle, 'padding' | 'fontSize'>;
     // (undocumented)
     majorLabel: Omit<TextStyle, 'padding' | 'fontSize'>;
+    marginRatio: number;
+    maxBulletSize: number;
+    // (undocumented)
+    maxCentralFontSize: number;
+    maxCircularSize: number;
     // (undocumented)
     maxFontSize: number;
+    // (undocumented)
+    maxLabelFontSize: number;
+    // (undocumented)
+    maxTickFontSize: number;
     // (undocumented)
     minFontSize: number;
     // (undocumented)
@@ -1069,8 +1249,6 @@ export type GroupByKeyFn<T> = (data: T) => string;
 // @public (undocumented)
 export type GroupByProps = ComponentProps<typeof GroupBy>;
 
-// Warning: (ae-forgotten-export) The symbol "Predicate" needs to be exported by the entry point index.d.ts
-//
 // @alpha (undocumented)
 export type GroupBySort = Predicate;
 
@@ -1088,7 +1266,7 @@ export type GroupId = string;
 export type GroupKeysOrKeyFn<T> = Array<keyof T> | GroupByKeyFn<T>;
 
 // @alpha
-export const Heatmap: <D extends BaseDatum = any>(props: SFProps<HeatmapSpec<D>, "chartType" | "specType", "data" | "timeZone" | "valueAccessor" | "valueFormatter" | "xAccessor" | "yAccessor" | "xSortPredicate" | "ySortPredicate" | "xScale" | "xAxisLabelFormatter" | "xAxisTitle" | "yAxisTitle" | "yAxisLabelFormatter" | "xAxisLabelName" | "yAxisLabelName", "name" | "onBrushEnd" | "highlightedData", "id" | "colorScale">) => null;
+export const Heatmap: <D extends BaseDatum = any>(props: SFProps<HeatmapSpec<D>, "chartType" | "specType", "data" | "timeZone" | "valueAccessor" | "xAccessor" | "yAccessor" | "valueFormatter" | "xScale" | "xSortPredicate" | "ySortPredicate" | "xAxisTitle" | "yAxisTitle" | "xAxisLabelFormatter" | "yAxisLabelFormatter" | "xAxisLabelName" | "yAxisLabelName", "name" | "onBrushEnd" | "highlightedData", "id" | "colorScale">) => null;
 
 // @alpha (undocumented)
 export interface HeatmapBandsColorScale {
@@ -1129,7 +1307,7 @@ export interface HeatmapSpec<D extends BaseDatum = Datum> extends Spec {
     };
     // (undocumented)
     name?: string;
-    // Warning: (ae-forgotten-export) The symbol "HeatmapBrushEvent" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "HeatmapBrushEvent_2" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     onBrushEnd?: (brushArea: HeatmapBrushEvent_2) => void;
@@ -1224,11 +1402,9 @@ export interface HeatmapStyle {
     // (undocumented)
     xAxisLabel: Font & {
         fontSize: Pixels;
-        width: Pixels | 'auto';
-        align: TextAlign;
-        baseline: TextBaseline;
         visible: boolean;
         padding: Pixels | Padding;
+        rotation: number;
     };
     // (undocumented)
     yAxisLabel: Font & {
@@ -1236,7 +1412,6 @@ export interface HeatmapStyle {
         width: Pixels | 'auto' | {
             max: Pixels;
         };
-        baseline: TextBaseline;
         visible: boolean;
         padding: Pixels | Padding;
     };
@@ -1247,6 +1422,18 @@ export const HIERARCHY_ROOT_KEY: Key;
 
 // @public (undocumented)
 export type HierarchyOfArrays = Array<ArrayEntry>;
+
+// @public (undocumented)
+export interface HighlighterStyle {
+    // (undocumented)
+    point: {
+        fill: Color | ColorVariant;
+        stroke: Color | ColorVariant;
+        strokeWidth: Pixels;
+        opacity: Ratio;
+        radius: Pixels;
+    };
+}
 
 // @public
 export const HistogramBarSeries: <D extends BaseDatum = any>(props: SFProps<HistogramBarSeriesSpec<D>, "chartType" | "specType" | "seriesType", "groupId" | "xScaleType" | "yScaleType" | "hideInLegend" | "enableHistogramMode", "sortIndex" | "timeZone" | "name" | "color" | "barSeriesStyle" | "xNice" | "yNice" | "useDefaultGroupDomain" | "displayValueSettings" | "y0AccessorFormat" | "y1AccessorFormat" | "filterSeriesInTooltip" | "tickFormat" | "y0Accessors" | "splitSeriesAccessors" | "markSizeAccessor" | "stackMode" | "styleAccessor" | "minBarHeight", "data" | "id" | "xAccessor" | "yAccessors">) => null;
@@ -1298,6 +1485,9 @@ export const INPUT_KEY = "inputIndex";
 export type IsAny<T, True, False = never> = True | False extends (T extends never ? True : False) ? True : False;
 
 // @public
+export function isMetricElementEvent(e: Parameters<ElementClickListener>[0][0]): e is MetricElementEvent;
+
+// @public
 export type IsUnknown<T, True, False = never> = unknown extends T ? IsAny<T, False, True> : False;
 
 // @public (undocumented)
@@ -1333,6 +1523,14 @@ export const LayoutDirection: Readonly<{
 
 // @public (undocumented)
 export type LayoutDirection = $Values<typeof LayoutDirection>;
+
+// @public
+export interface LegacyAnimationConfig {
+    // @alpha (undocumented)
+    animation: {
+        duration: TimeMs;
+    };
+}
 
 // @public
 export type LegendAction = ComponentType<LegendActionProps>;
@@ -1391,6 +1589,7 @@ export interface LegendSpec {
     legendMaxDepth: number;
     legendPosition: Position | LegendPositionConfig;
     legendSize: number;
+    legendSort?: SeriesCompareFn;
     legendStrategy?: LegendStrategy;
     // (undocumented)
     onLegendItemClick?: LegendItemListener;
@@ -1432,7 +1631,7 @@ export interface LegendStyle {
 export const LIGHT_THEME: Theme;
 
 // @public
-export const LineAnnotation: <D = any>(props: SFProps<LineAnnotationSpec<D>, "chartType" | "specType", "style" | "zIndex" | "groupId" | "hideLines" | "hideLinesTooltips" | "annotationType" | "hideTooltips", "offset" | "fallbackPlacements" | "placement" | "boundary" | "boundaryPadding" | "marker" | "customTooltip" | "markerBody" | "markerDimensions" | "markerPosition" | "customTooltipDetails", "id" | "dataValues" | "domainType">) => null;
+export const LineAnnotation: <D = any>(props: SFProps<LineAnnotationSpec<D>, "chartType" | "specType", "style" | "zIndex" | "groupId" | "hideLines" | "hideLinesTooltips" | "annotationType" | "hideTooltips", "offset" | "fallbackPlacements" | "placement" | "boundary" | "boundaryPadding" | "marker" | "customTooltip" | "markerBody" | "markerDimensions" | "markerPosition" | "customTooltipDetails" | "animations", "id" | "domainType" | "dataValues">) => null;
 
 // @public
 export interface LineAnnotationDatum<D = any> {
@@ -1532,16 +1731,116 @@ export type Margins = PerSideDistance;
 export type MarkBuffer = number | ((radius: number) => number);
 
 // @public (undocumented)
-export function mergeWithDefaultAnnotationLine(config?: Partial<LineAnnotationStyle>): LineAnnotationStyle;
+export function mergeWithDefaultAnnotationLine(config?: RecursivePartial<LineAnnotationStyle>): LineAnnotationStyle;
 
 // @public (undocumented)
-export function mergeWithDefaultAnnotationRect(config?: Partial<RectAnnotationStyle>): RectAnnotationStyle;
+export function mergeWithDefaultAnnotationRect(config?: RecursivePartial<RectAnnotationStyle>): RectAnnotationStyle;
 
 // @public @deprecated
 export function mergeWithDefaultTheme(theme: PartialTheme, defaultTheme?: Theme, auxiliaryThemes?: PartialTheme[]): Theme;
 
+// @alpha (undocumented)
+export const Metric: FC<SFProps<MetricSpec, "chartType" | "specType", "data", never, "id">>;
+
+// @alpha (undocumented)
+export type MetricBase = {
+    color: Color;
+    title?: string;
+    subtitle?: string;
+    extra?: ReactElement;
+    icon?: ComponentType<{
+        width: number;
+        height: number;
+        color: Color;
+    }>;
+};
+
+// @alpha (undocumented)
+export type MetricDatum = MetricWNumber | MetricWText | MetricWProgress | MetricWTrend;
+
+// @public
+export type MetricElementEvent = {
+    type: 'metricElementEvent';
+    rowIndex: number;
+    columnIndex: number;
+};
+
+// @alpha (undocumented)
+export interface MetricSpec extends Spec {
+    // (undocumented)
+    chartType: typeof ChartType.Metric;
+    // (undocumented)
+    data: (MetricDatum | undefined)[][];
+    // (undocumented)
+    specType: typeof SpecType.Series;
+}
+
+// @alpha (undocumented)
+export type MetricSpecProps = ComponentProps<typeof Metric>;
+
+// @public (undocumented)
+export interface MetricStyle {
+    // (undocumented)
+    background: Color;
+    // (undocumented)
+    barBackground: Color;
+    // (undocumented)
+    border: Color;
+    // (undocumented)
+    minHeight: Pixels;
+    // (undocumented)
+    nonFiniteText: string;
+    // (undocumented)
+    text: {
+        darkColor: Color;
+        lightColor: Color;
+    };
+}
+
+// @alpha (undocumented)
+export const MetricTrendShape: Readonly<{
+    Bars: "bars";
+    Area: "area";
+}>;
+
+// @alpha (undocumented)
+export type MetricTrendShape = $Values<typeof MetricTrendShape>;
+
+// @alpha (undocumented)
+export type MetricWNumber = MetricBase & {
+    value: number;
+    valueFormatter: (d: number) => string;
+};
+
+// @alpha (undocumented)
+export type MetricWProgress = MetricWNumber & {
+    domainMax: number;
+    progressBarDirection: LayoutDirection;
+};
+
+// @alpha (undocumented)
+export type MetricWText = MetricBase & {
+    value: string;
+};
+
+// @alpha (undocumented)
+export type MetricWTrend = MetricWNumber & {
+    trend: {
+        x: number;
+        y: number;
+    }[];
+    trendShape: MetricTrendShape;
+    trendA11yTitle?: string;
+    trendA11yDescription?: string;
+};
+
 // @public (undocumented)
 export const MODEL_KEY = "parent";
+
+// @public
+export type Neverify<T extends Record<string, unknown>> = {
+    [Key in keyof T]?: never;
+};
 
 // @public (undocumented)
 export function niceTimeFormatByDay(days: number): "YYYY-MM-DD" | "MMMM DD" | "MM-DD HH:mm" | "HH:mm:ss";
@@ -1613,7 +1912,7 @@ export type PartialTheme = RecursivePartial<Theme>;
 // Warning: (ae-forgotten-export) The symbol "PartitionSpec" needs to be exported by the entry point index.d.ts
 //
 // @public
-export const Partition: <D extends BaseDatum = any>(props: SFProps<PartitionSpec<D>, "chartType" | "specType", "animation" | "layout" | "valueAccessor" | "clockwiseSectors" | "specialFirstInnermostSector" | "drilldown" | "maxRowCount" | "fillOutside" | "radiusOutside" | "fillRectangleWidth" | "fillRectangleHeight" | "valueFormatter" | "valueGetter" | "percentFormatter" | "topGroove" | "smallMultiples" | "layers", never, "data" | "id">) => null;
+export const Partition: <D extends BaseDatum = any>(props: SFProps<PartitionSpec<D>, "chartType" | "specType", "animation" | "layout" | "valueAccessor" | "smallMultiples" | "valueFormatter" | "valueGetter" | "clockwiseSectors" | "specialFirstInnermostSector" | "drilldown" | "maxRowCount" | "fillOutside" | "radiusOutside" | "fillRectangleWidth" | "fillRectangleHeight" | "percentFormatter" | "topGroove" | "layers", never, "data" | "id">) => null;
 
 // Warning: (ae-forgotten-export) The symbol "StaticConfig" needs to be exported by the entry point index.d.ts
 //
@@ -1702,7 +2001,7 @@ export interface PartitionStyle extends FillFontSizeRange {
     outerSizeRatio: SizeRatio;
     // (undocumented)
     radialPadding: Distance;
-    // Warning: (ae-forgotten-export) The symbol "StrokeStyle" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "StrokeStyle_2" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     sectorLineStroke: StrokeStyle_2;
@@ -1727,6 +2026,9 @@ export interface PerSideDistance {
     // (undocumented)
     top: number;
 }
+
+// @public (undocumented)
+export type PinTooltipCallback = (pinned: boolean, resetPointer?: boolean) => any;
 
 // @public (undocumented)
 export type Pixels = number;
@@ -1842,6 +2144,18 @@ export interface Postfixes {
     y1AccessorFormat?: string;
 }
 
+// @public (undocumented)
+export const Predicate: Readonly<{
+    NumAsc: "numAsc";
+    NumDesc: "numDesc";
+    AlphaAsc: "alphaAsc";
+    AlphaDesc: "alphaDesc";
+    DataIndex: "dataIndex";
+}>;
+
+// @public (undocumented)
+export type Predicate = $Values<typeof Predicate>;
+
 // @public
 export type PrimitiveValue = string | number | null;
 
@@ -1865,6 +2179,19 @@ export type ProjectionAreaChangeListener = (areas: {
 // @public
 export type ProjectionClickListener = (values: ProjectedValues) => void;
 
+// @public
+export type PropsOrChildrenWithProps<Props extends Record<string, unknown> = Record<string, any>, ChildrenProps extends Record<string, unknown> = Record<string, any>, ExtraProps extends Record<string, unknown> = Record<string, any>> = PropsWithChildren<ChildrenProps, ExtraProps, Props> | PropsWithoutChildren<Props, ExtraProps, ChildrenProps>;
+
+// @public
+export type PropsWithChildren<ChildrenProps extends Record<string, unknown> = Record<string, any>, ExtraProps extends Record<string, unknown> = Record<string, any>, Props extends Record<string, unknown> = Record<string, any>> = {
+    children: ReactNode;
+} & ChildrenProps & ExtraProps & Neverify<Props>;
+
+// @public
+export type PropsWithoutChildren<Props extends Record<string, unknown> = Record<string, any>, ExtraProps extends Record<string, unknown> = Record<string, any>, ChildrenProps extends Record<string, unknown> = Record<string, any>> = {
+    children?: never | undefined;
+} & Neverify<ChildrenProps> & Props & ExtraProps;
+
 // @public (undocumented)
 export interface RasterTimeScale extends TimeScale {
     // (undocumented)
@@ -1878,7 +2205,7 @@ export type Ratio = number;
 export type RawTextGetter = (node: ShapeTreeNode) => string;
 
 // @public (undocumented)
-export const RectAnnotation: FC<SFProps<RectAnnotationSpec, "chartType" | "specType", "style" | "zIndex" | "groupId" | "outside" | "annotationType", "offset" | "fallbackPlacements" | "placement" | "boundary" | "boundaryPadding" | "customTooltip" | "customTooltipDetails" | "hideTooltips" | "renderTooltip" | "outsideDimension", "id" | "dataValues">>;
+export const RectAnnotation: FC<SFProps<RectAnnotationSpec, "chartType" | "specType", "style" | "zIndex" | "groupId" | "outside" | "annotationType", "offset" | "fallbackPlacements" | "placement" | "boundary" | "boundaryPadding" | "customTooltip" | "customTooltipDetails" | "hideTooltips" | "animations" | "renderTooltip" | "outsideDimension", "id" | "dataValues">>;
 
 // @public
 export interface RectAnnotationDatum {
@@ -1966,6 +2293,9 @@ export type RgbaTuple = [r: RGB, g: RGB, b: RGB, alpha: A];
 // @public (undocumented)
 export type Rotation = 0 | 90 | -90 | 180;
 
+// @public
+export function roundDateToESInterval(date: UnixTimestamp | Date, interval: ESCalendarInterval | ESFixedInterval, snapTo: 'start' | 'end', timeZone: string): UnixTimestamp;
+
 // @public (undocumented)
 export type ScaleBandType = ScaleOrdinalType;
 
@@ -2023,6 +2353,9 @@ export type SeriesColorAccessorFn = (seriesIdentifier: XYChartSeriesIdentifier) 
 
 // @public (undocumented)
 export type SeriesColorsArray = string[];
+
+// @public
+export type SeriesCompareFn = (siA: SeriesIdentifier, siB: SeriesIdentifier) => number;
 
 // @public
 export type SeriesIdentifier = {
@@ -2103,13 +2436,16 @@ export const SeriesType: Readonly<{
 // @public
 export type SeriesType = $Values<typeof SeriesType>;
 
+// @public (undocumented)
+export type SetSelectedTooltipItemsCallback = (items: TooltipValue<any, SeriesIdentifier>[]) => any;
+
 // @public
-export const Settings: (props: SFProps<SettingsSpec, keyof typeof settingsBuildProps['overrides'], keyof typeof settingsBuildProps['defaults'], keyof typeof settingsBuildProps['optionals'], keyof typeof settingsBuildProps['requires']>) => null;
+export const Settings: (props: SFProps<SettingsSpec, keyof (typeof settingsBuildProps)['overrides'], keyof (typeof settingsBuildProps)['defaults'], keyof (typeof settingsBuildProps)['optionals'], keyof (typeof settingsBuildProps)['requires']>) => null;
 
 // Warning: (ae-forgotten-export) The symbol "BuildProps" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
-export const settingsBuildProps: BuildProps<SettingsSpec, "id" | "chartType" | "specType", "rotation" | "debug" | "tooltip" | "ariaLabelHeadingLevel" | "ariaUseDefaultSummary" | "legendPosition" | "legendMaxDepth" | "legendSize" | "showLegend" | "showLegendExtra" | "baseTheme" | "rendering" | "animateData" | "externalPointerEvents" | "resizeDebounce" | "pointerUpdateTrigger" | "brushAxis" | "minBrushDelta" | "allowBrushingLastHistogramBin", "ariaLabel" | "xDomain" | "theme" | "ariaDescription" | "ariaDescribedBy" | "ariaLabelledBy" | "ariaTableCaption" | "flatLegend" | "legendAction" | "legendColorPicker" | "legendStrategy" | "onLegendItemClick" | "onLegendItemMinusClick" | "onLegendItemOut" | "onLegendItemOver" | "onLegendItemPlusClick" | "orderOrdinalBinsBy" | "debugState" | "onProjectionClick" | "onElementClick" | "onElementOver" | "onElementOut" | "pointBuffer" | "onBrushEnd" | "onPointerUpdate" | "onRenderChange" | "onProjectionAreaChange" | "onAnnotationClick" | "pointerUpdateDebounce" | "roundHistogramBrushValues" | "noResults", never>;
+export const settingsBuildProps: BuildProps<SettingsSpec, "id" | "chartType" | "specType", "rotation" | "debug" | "legendPosition" | "legendMaxDepth" | "legendSize" | "showLegend" | "showLegendExtra" | "baseTheme" | "rendering" | "animateData" | "externalPointerEvents" | "pointBuffer" | "resizeDebounce" | "pointerUpdateTrigger" | "brushAxis" | "minBrushDelta" | "allowBrushingLastHistogramBin" | "ariaLabelHeadingLevel" | "ariaUseDefaultSummary", "ariaLabel" | "tooltip" | "theme" | "onBrushEnd" | "flatLegend" | "legendAction" | "legendColorPicker" | "legendStrategy" | "onLegendItemClick" | "onLegendItemMinusClick" | "onLegendItemOut" | "onLegendItemOver" | "onLegendItemPlusClick" | "xDomain" | "orderOrdinalBinsBy" | "debugState" | "onProjectionClick" | "onElementClick" | "onElementOver" | "onElementOut" | "onPointerUpdate" | "onRenderChange" | "onProjectionAreaChange" | "onAnnotationClick" | "pointerUpdateDebounce" | "roundHistogramBrushValues" | "noResults" | "ariaLabelledBy" | "ariaDescription" | "ariaDescribedBy" | "ariaTableCaption" | "legendSort", never>;
 
 // @public (undocumented)
 export type SettingsProps = ComponentProps<typeof Settings>;
@@ -2152,8 +2488,7 @@ export interface SettingsSpec extends Spec, LegendSpec {
     // (undocumented)
     onRenderChange?: RenderChangeListener;
     orderOrdinalBinsBy?: OrderBy;
-    // (undocumented)
-    pointBuffer?: MarkBuffer;
+    pointBuffer: MarkBuffer;
     pointerUpdateDebounce?: number;
     pointerUpdateTrigger: PointerUpdateTrigger;
     // (undocumented)
@@ -2163,7 +2498,8 @@ export interface SettingsSpec extends Spec, LegendSpec {
     rotation: Rotation;
     roundHistogramBrushValues?: boolean;
     theme?: PartialTheme | PartialTheme[];
-    tooltip: TooltipSettings;
+    // @deprecated
+    tooltip?: TooltipSettings;
     // (undocumented)
     xDomain?: CustomXDomain;
 }
@@ -2187,13 +2523,13 @@ export interface ShapeTreeNode extends TreeNode, SectorGeomSpecY {
 }
 
 // @public (undocumented)
-export interface SharedGeometryStateStyle {
+export interface SharedGeometryStateStyle<S extends CSSProperties = GeometryStateStyle> {
     // (undocumented)
-    default: GeometryStateStyle;
+    default: S;
     // (undocumented)
-    highlighted: GeometryStateStyle;
+    highlighted: S;
     // (undocumented)
-    unhighlighted: GeometryStateStyle;
+    unhighlighted: S;
 }
 
 // @public (undocumented)
@@ -2241,7 +2577,6 @@ export function sortIndexAccessor(n: ArrayEntry): number;
 // @public
 export interface SortSeriesByConfig {
     default?: SeriesCompareFn;
-    // Warning: (ae-forgotten-export) The symbol "SeriesCompareFn" needs to be exported by the entry point index.d.ts
     legend?: SeriesCompareFn;
     rendering?: SeriesCompareFn;
     tooltip?: SeriesCompareFn;
@@ -2263,6 +2598,7 @@ export const SpecType: Readonly<{
     Axis: "axis";
     Annotation: "annotation";
     Settings: "settings";
+    Tooltip: "tooltip";
     IndexOrder: "index_order";
     SmallMultiples: "small_multiples";
 }>;
@@ -2389,17 +2725,23 @@ export interface Theme {
     colors: ColorConfig;
     // (undocumented)
     crosshair: CrosshairStyle;
+    // @alpha (undocumented)
+    flamegraph: FlamegraphStyle;
     goal: GoalStyles;
     heatmap: HeatmapStyle;
+    // (undocumented)
+    highlighter: HighlighterStyle;
     // (undocumented)
     legend: LegendStyle;
     lineSeriesStyle: LineSeriesStyle;
     markSizeRatio?: number;
+    metric: MetricStyle;
     partition: PartitionStyle;
     // (undocumented)
     scales: ScalesConfig;
     // (undocumented)
     sharedStyle: SharedGeometryStateStyle;
+    tooltip: TooltipStyle;
 }
 
 // @public (undocumented)
@@ -2420,19 +2762,89 @@ export type TickStyle = StrokeStyle & Visible & {
 export function timeFormatter(format: string): TickFormatter;
 
 // @public (undocumented)
+export const TimeFunction: Readonly<{
+    linear: "linear";
+    ease: "ease";
+    easeIn: "easeIn";
+    easeOut: "easeOut";
+    easeInOut: "easeInOut";
+}>;
+
+// @public (undocumented)
+export type TimeFunction = $Values<typeof TimeFunction>;
+
+// @public (undocumented)
+export type TimeMs = number;
+
+// @public (undocumented)
 export interface TimeScale {
     // (undocumented)
     type: typeof ScaleType.Time;
 }
 
+// Warning: (ae-forgotten-export) The symbol "buildProps_2" needs to be exported by the entry point index.d.ts
+//
+// @public
+export const Timeslip: (props: SFProps<TimeslipSpec, keyof (typeof buildProps_2)['overrides'], keyof (typeof buildProps_2)['defaults'], keyof (typeof buildProps_2)['optionals'], keyof (typeof buildProps_2)['requires']>) => null;
+
+// @public
+export interface TimeslipSpec extends Spec {
+    // (undocumented)
+    chartType: typeof ChartType.Timeslip;
+    // (undocumented)
+    getData: GetData;
+    // (undocumented)
+    specType: typeof SpecType.Series;
+}
+
 // @public
 export function toEntries<T extends Record<string, string>, S>(array: T[], accessor: keyof T, staticValue: S): Record<string, S>;
 
+// @public (undocumented)
+export type ToggleSelectedTooltipItemCallback = (item: TooltipValue<any, SeriesIdentifier>) => any;
+
 // @public
-export interface TooltipInfo {
-    header: TooltipValue | null;
-    values: TooltipValue[];
+export const Tooltip: <D extends BaseDatum = any, SI extends SeriesIdentifier = SeriesIdentifier>(props: SFProps<TooltipSpec<D, SI>, "id" | "chartType" | "specType", "type" | "actions" | "selectionPrompt" | "actionsLoading" | "noActionsLoaded" | "snap" | "showNullValues" | "actionPrompt" | "pinningPrompt" | "maxTooltipItems" | "maxVisibleTooltipItems", "footer" | "header" | "offset" | "fallbackPlacements" | "placement" | "boundary" | "boundaryPadding" | "headerFormatter" | "unit" | "customTooltip" | "stickTo", never>) => null;
+
+// @public
+export type TooltipAction<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> = {
+    label: string | ((selected: TooltipValue<D, SI>[], allItems: TooltipValue<D, SI>[]) => ReactNode);
+    hide?: (selected: TooltipValue<D, SI>[], allItems: TooltipValue<D, SI>[]) => boolean;
+    disabled?: (selected: TooltipValue<D, SI>[], allItems: TooltipValue<D, SI>[]) => boolean | string;
+    onSelect: (selected: TooltipValue<D, SI>[], allItems: TooltipValue<D, SI>[]) => void;
+};
+
+// @public
+export const tooltipBuildProps: BuildProps<TooltipSpec<any, SeriesIdentifier>, "id" | "chartType" | "specType", "type" | "actions" | "selectionPrompt" | "actionsLoading" | "noActionsLoaded" | "snap" | "showNullValues" | "actionPrompt" | "pinningPrompt" | "maxTooltipItems" | "maxVisibleTooltipItems", "footer" | "header" | "offset" | "fallbackPlacements" | "placement" | "boundary" | "boundaryPadding" | "headerFormatter" | "unit" | "customTooltip" | "stickTo", never>;
+
+// @public
+export type TooltipCellStyle = Pick<CSSProperties, 'maxHeight' | 'textAlign' | 'padding' | 'paddingTop' | 'paddingRight' | 'paddingBottom' | 'paddingLeft'>;
+
+// Warning: (ae-forgotten-export) The symbol "TooltipDividerProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipDivider: ({ margin }: TooltipDividerProps) => JSX.Element;
+
+// Warning: (ae-forgotten-export) The symbol "TooltipFooterProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipFooter: ({ children }: TooltipFooterProps) => JSX.Element;
+
+// Warning: (ae-forgotten-export) The symbol "TooltipHeaderProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipHeader: <D extends BaseDatum = any, SI extends SeriesIdentifier = SeriesIdentifier>(props: TooltipHeaderProps<D, SI>) => JSX.Element | null;
+
+// @public
+export interface TooltipInfo<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> {
+    header: TooltipValue<D, SI> | null;
+    values: TooltipValue<D, SI>[];
 }
+
+// Warning: (ae-forgotten-export) The symbol "TooltipMetricRowProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipMetricRow: React_2.MemoExoticComponent<({ label, metric }: TooltipMetricRowProps) => JSX.Element>;
 
 // @public
 export interface TooltipPortalSettings<B = never> {
@@ -2444,18 +2856,36 @@ export interface TooltipPortalSettings<B = never> {
 }
 
 // @public
-export type TooltipProps = TooltipPortalSettings<'chart'> & {
-    type?: TooltipType;
-    snap?: boolean;
-    headerFormatter?: TooltipValueFormatter;
-    unit?: string;
-    customTooltip?: CustomTooltip;
-    stickTo?: TooltipStickTo;
-    showNullValues?: boolean;
-};
+export type TooltipProps<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> = SFProps<TooltipSpec<D, SI>, keyof typeof tooltipBuildProps['overrides'], keyof typeof tooltipBuildProps['defaults'], keyof typeof tooltipBuildProps['optionals'], keyof typeof tooltipBuildProps['requires']>;
+
+// @public @deprecated
+export type TooltipSettings = TooltipType | TooltipProps;
 
 // @public
-export type TooltipSettings = TooltipType | TooltipProps;
+export interface TooltipSpec<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> extends Spec, TooltipPortalSettings<'chart'> {
+    actionPrompt: string;
+    actions: TooltipAction<D, SI>[] | ((selected: TooltipValue<D, SI>[]) => Promise<TooltipAction<D, SI>[]> | TooltipAction<D, SI>[]);
+    actionsLoading: string | ComponentType<{
+        selected: TooltipValue<D, SI>[];
+    }>;
+    customTooltip?: CustomTooltip<D, SI>;
+    footer?: string | ((items: TooltipValue<D, SI>[]) => ReactNode);
+    header?: string | ((items: TooltipValue<D, SI>[]) => ReactNode);
+    headerFormatter?: TooltipValueFormatter<D, SI>;
+    maxTooltipItems: number;
+    maxVisibleTooltipItems: number;
+    noActionsLoaded: string | ComponentType<{
+        selected: TooltipValue<D, SI>[];
+    }>;
+    pinningPrompt: string;
+    selectionPrompt: string;
+    showNullValues: boolean;
+    snap: boolean;
+    stickTo?: TooltipStickTo;
+    type: TooltipType;
+    // @alpha
+    unit?: string;
+}
 
 // @public
 export const TooltipStickTo: Readonly<{
@@ -2472,6 +2902,99 @@ export const TooltipStickTo: Readonly<{
 export type TooltipStickTo = $Values<typeof TooltipStickTo>;
 
 // @public
+export interface TooltipStyle {
+    defaultDotColor: Color;
+    maxTableHeight: CSSProperties['maxHeight'];
+    maxWidth: NonNullable<CSSProperties['maxWidth']>;
+}
+
+// Warning: (ae-forgotten-export) The symbol "TooltipTableProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipTable: <D extends BaseDatum = any, SI extends SeriesIdentifier = SeriesIdentifier>({ className, ...props }: TooltipTableProps<D, SI>) => JSX.Element;
+
+// Warning: (ae-forgotten-export) The symbol "TooltipTableBodyProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipTableBody: <D extends BaseDatum = any, SI extends SeriesIdentifier = SeriesIdentifier>({ className, ...props }: TooltipTableBodyProps<D, SI>) => JSX.Element;
+
+// @public (undocumented)
+export const TooltipTableCell: ({ style, truncate, tagName, className, children, title: manualTitle, }: TooltipTableCellProps) => JSX.Element;
+
+// @public (undocumented)
+export type TooltipTableCellProps = PropsWithChildren_2<{
+    tagName?: 'td' | 'th';
+    truncate?: boolean;
+    className?: string;
+    title?: string;
+    style?: TooltipCellStyle;
+}>;
+
+// @public
+export function TooltipTableColorCell({ color, className, displayOnly, ...cellProps }: ColorStripCellProps): JSX.Element | null;
+
+// @alpha
+export type TooltipTableColumn<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> = TooltipTableColumnCustom<D, SI> | TooltipTableColumnColor<D, SI> | TooltipTableColumnNumber<D, SI> | TooltipTableColumnText<D, SI>;
+
+// @alpha
+export type TooltipTableColumnBase<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> = {
+    id?: string;
+    className?: string;
+    header?: string | ((items: TooltipValue<D, SI>[]) => string);
+    footer?: string | ((items: TooltipValue<D, SI>[]) => string);
+    hidden?: boolean | ((items: TooltipValue<D, SI>[]) => boolean);
+    style?: TooltipCellStyle;
+    truncate?: boolean;
+    width?: CSSProperties['gridTemplateColumns'];
+};
+
+// @alpha
+export interface TooltipTableColumnColor<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> extends Omit<TooltipTableColumnBase<D, SI>, 'header' | 'footer'> {
+    // (undocumented)
+    footer?: never;
+    // (undocumented)
+    header?: never;
+    // (undocumented)
+    type: 'color';
+}
+
+// @alpha
+export interface TooltipTableColumnCustom<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> extends TooltipTableColumnBase<D, SI> {
+    cell: (item: TooltipValue<D, SI>) => ReactNode;
+    // (undocumented)
+    type: 'custom';
+}
+
+// @alpha
+export interface TooltipTableColumnNumber<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> extends TooltipTableColumnBase<D, SI> {
+    cell: (item: TooltipValue<D, SI>) => string | number;
+    // (undocumented)
+    type: 'number';
+}
+
+// @alpha
+export interface TooltipTableColumnText<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> extends TooltipTableColumnBase<D, SI> {
+    cell: (item: TooltipValue<D, SI>) => string;
+    // (undocumented)
+    type: 'text';
+}
+
+// Warning: (ae-forgotten-export) The symbol "TooltipTableFooterProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipTableFooter: <D extends BaseDatum = any, SI extends SeriesIdentifier = SeriesIdentifier>({ className, ...props }: TooltipTableFooterProps<D, SI>) => JSX.Element | null;
+
+// Warning: (ae-forgotten-export) The symbol "TooltipTableHeaderProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipTableHeader: <D extends BaseDatum = any, SI extends SeriesIdentifier = SeriesIdentifier>({ className, ...props }: TooltipTableHeaderProps<D, SI>) => JSX.Element | null;
+
+// Warning: (ae-forgotten-export) The symbol "TooltipTableRowProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const TooltipTableRow: ({ id, isHighlighted, isSelected, children, onSelect, className, }: TooltipTableRowProps) => JSX.Element;
+
+// @public
 export const TooltipType: Readonly<{
     VerticalCursor: "vertical";
     Crosshairs: "cross";
@@ -2483,7 +3006,7 @@ export const TooltipType: Readonly<{
 export type TooltipType = $Values<typeof TooltipType>;
 
 // @public
-export interface TooltipValue<D extends BaseDatum = Datum> {
+export interface TooltipValue<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> {
     color: Color;
     datum?: D;
     formattedMarkValue?: string | null;
@@ -2492,13 +3015,13 @@ export interface TooltipValue<D extends BaseDatum = Datum> {
     isVisible: boolean;
     label: string;
     markValue?: number | null;
-    seriesIdentifier: SeriesIdentifier;
+    seriesIdentifier: SI;
     value: any;
     valueAccessor?: Accessor<D>;
 }
 
 // @public
-export type TooltipValueFormatter = (data: TooltipValue) => JSX.Element | string;
+export type TooltipValueFormatter<D extends BaseDatum = Datum, SI extends SeriesIdentifier = SeriesIdentifier> = (data: TooltipValue<D, SI>) => JSX.Element | string;
 
 // @public (undocumented)
 export type TreeLevel = number;
@@ -2523,6 +3046,9 @@ export interface UnaryAccessorFn<D extends BaseDatum = any, Return = any> {
     (datum: D): Return;
     fieldName?: string;
 }
+
+// @public
+export type UnixTimestamp = TimeMs;
 
 // @public
 export function useLegendAction<T extends HTMLElement>(): [ref: LegacyRef<T>, onClose: () => void];
@@ -2656,6 +3182,8 @@ export interface XYChartSeriesIdentifier<D extends BaseDatum = Datum> extends Se
     // (undocumented)
     splitAccessors: Map<string | number, string | number>;
     // (undocumented)
+    xAccessor: Accessor<D>;
+    // (undocumented)
     yAccessor: Accessor<D>;
 }
 
@@ -2663,18 +3191,13 @@ export interface XYChartSeriesIdentifier<D extends BaseDatum = Datum> extends Se
 export interface YDomainBase {
     constrainPadding?: boolean;
     fit?: boolean;
+    includeDataFromIds?: SpecId[];
     padding?: number;
     paddingUnit?: DomainPaddingUnit;
 }
 
 // @public (undocumented)
 export type YDomainRange = YDomainBase & DomainRange & LogScaleOptions;
-
-// Warnings were encountered during analysis:
-//
-// src/chart_types/partition_chart/layout/types/config.ts:60:5 - (ae-forgotten-export) The symbol "TimeMs" needs to be exported by the entry point index.d.ts
-// src/utils/themes/theme.ts:217:5 - (ae-forgotten-export) The symbol "TextAlign" needs to be exported by the entry point index.d.ts
-// src/utils/themes/theme.ts:218:5 - (ae-forgotten-export) The symbol "TextBaseline" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

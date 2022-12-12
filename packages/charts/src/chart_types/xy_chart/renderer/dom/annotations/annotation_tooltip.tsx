@@ -9,6 +9,7 @@
 import React, { useCallback, useMemo, useEffect, RefObject } from 'react';
 
 import { TooltipPortal, Placement, TooltipPortalSettings } from '../../../../../components/portal';
+import { TooltipWrapper } from '../../../../../components/tooltip';
 import { AnnotationTooltipState } from '../../../annotations/types';
 import { TooltipContent } from './tooltip_content';
 
@@ -27,7 +28,20 @@ export const AnnotationTooltip = ({ state, chartRef, chartId, onScroll, zIndex }
       return null;
     }
 
-    return <TooltipContent {...state} />;
+    return (
+      <TooltipWrapper
+        // actions not used on annotations yet
+        actions={[]}
+        actionPrompt=""
+        pinningPrompt=""
+        selectionPrompt=""
+        actionsLoading=""
+        noActionsLoaded=""
+        className="echAnnotation"
+      >
+        <TooltipContent {...state} />
+      </TooltipWrapper>
+    );
   }, [state]);
 
   const handleScroll = () => {
@@ -71,7 +85,7 @@ export const AnnotationTooltip = ({ state, chartRef, chartId, onScroll, zIndex }
       zIndex={zIndex + 100}
       anchor={{
         position,
-        ref: chartRef.current,
+        appendRef: chartRef,
       }}
       visible={state?.isVisible ?? false}
       settings={popperSettings}

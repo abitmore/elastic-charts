@@ -10,7 +10,7 @@ import { LegendItem } from '../../../../common/legend';
 import { getPredicateFn, Predicate } from '../../../../common/predicate';
 import { AnnotationSpec, AnnotationType, AxisSpec } from '../../../../specs';
 import { createCustomCachedSelector } from '../../../../state/create_selector';
-import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_specs';
+import { getSettingsSpecSelector } from '../../../../state/selectors/get_settings_spec';
 import {
   DebugState,
   DebugStateAnnotations,
@@ -254,14 +254,13 @@ function getSeriesNameMap(legendItems: LegendItem[]): Map<string, string> {
 function getLegendState(legendItems: LegendItem[]): DebugStateLegend {
   const items = legendItems
     .filter(({ isSeriesHidden }) => !isSeriesHidden)
-    .map(({ label: name, color, seriesIdentifiers }) => {
+    .flatMap(({ label: name, color, seriesIdentifiers }) => {
       return seriesIdentifiers.map(({ key }) => ({
         key,
         name,
         color,
       }));
-    })
-    .flat();
+    });
 
   return { items };
 }

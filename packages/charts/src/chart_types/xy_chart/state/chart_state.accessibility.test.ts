@@ -12,7 +12,7 @@ import { MockGlobalSpec, MockSeriesSpec } from '../../../mocks/specs';
 import { MockStore } from '../../../mocks/store/store';
 import { GlobalChartState } from '../../../state/chart_state';
 import { DEFAULT_A11Y_SETTINGS } from '../../../state/selectors/get_accessibility_config';
-import { getSettingsSpecSelector } from '../../../state/selectors/get_settings_specs';
+import { getSettingsSpecSelector } from '../../../state/selectors/get_settings_spec';
 
 describe('test accessibility prop defaults', () => {
   let store: Store<GlobalChartState>;
@@ -33,13 +33,8 @@ describe('test accessibility prop defaults', () => {
   });
   it('should test defaults', () => {
     const state = store.getState();
-    const {
-      ariaDescription,
-      ariaUseDefaultSummary,
-      ariaLabelHeadingLevel,
-      ariaLabel,
-      ariaLabelledBy,
-    } = getSettingsSpecSelector(state);
+    const { ariaDescription, ariaUseDefaultSummary, ariaLabelHeadingLevel, ariaLabel, ariaLabelledBy } =
+      getSettingsSpecSelector(state);
     expect(ariaDescription).toBeUndefined();
     expect(ariaUseDefaultSummary).toBeTrue();
     expect(ariaLabelHeadingLevel).toBe(DEFAULT_A11Y_SETTINGS.labelHeadingLevel);

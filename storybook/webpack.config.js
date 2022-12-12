@@ -9,7 +9,6 @@
 const path = require('path');
 
 const CircularDependencyPlugin = require('circular-dependency-plugin');
-const webpack = require('webpack');
 
 const nonce = 'Pk1rZ1XDlMuYe8ubWV3Lh0BzwrTigJQ=';
 
@@ -26,24 +25,24 @@ const scssLoaders = [
       },
     },
   },
-  'sass-loader',
+  {
+    loader: 'sass-loader',
+    options: {
+      sassOptions: {
+        // prevent divider deprecation warning messages
+        quietDeps: true,
+      },
+    },
+  },
 ];
 
 const MAX_CYCLES = 0;
 let numCyclesDetected = 0;
 
 module.exports = ({ config }) => {
-  const FAST = Boolean(JSON.parse(process.env.FAST ?? false));
+  config.mode = 'development';
 
-  config.plugins.push(
-    new webpack.EnvironmentPlugin({
-      FAST,
-      RNG_SEED: null,
-      VRT: process.env.VRT ?? null,
-    }),
-  );
-
-  if (!FAST) {
+  if (process.env.CI) {
     config.plugins.push(
       new CircularDependencyPlugin({
         onStart() {
